@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="SeguimientoDeportivo.jnlp">
+  <information>
+    <title>SeguimientoDeportivo</title>
+    <vendor>Rafa</vendor>
+    <description>null</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="SeguimientoDeportivo.jar" size="22037" download="eager" />
+    <jar href="lib\jGPX.jar" size="63961" download="eager" />
+  </resources>
+  <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="SeguimientoDeportivo" >
+    <param name="requiredFXVersion" value="8.0+"/>
+  </applet-desc>
+  <jfx:javafx-desc  width="800" height="600" main-class="seguimientodeportivo.SeguimientoDeportivo"  name="SeguimientoDeportivo" />
+  <update check="always"/>
+</jnlp>

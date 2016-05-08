@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="800.0" stylesheets="@../css/CustomButtons.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MainScreenController">
+   <children>
+      <MenuBar>
+        <menus>
+          <Menu mnemonicParsing="false" text="Archivo">
+            <items>
+                  <MenuItem mnemonicParsing="false" onAction="#loadWorkoutAction" text="Cargar entrenamiento" />
+              <MenuItem mnemonicParsing="false" onAction="#exitAction" text="Salir" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Ayuda">
+            <items>
+              <MenuItem mnemonicParsing="false" onAction="#aboutAction" text="Sobre" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <HBox fx:id="hBox" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+         <children>
+            <VBox fx:id="workoutListLayout" spacing="5.0">
+               <children>
+                  <ListView fx:id="trainingList" prefHeight="200.0" prefWidth="150.0" VBox.vgrow="ALWAYS" />
+                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="big-button" text="Resumen mensual" />
+                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="big-button" text="Resumen trimestral" />
+               </children>
+            </VBox>
+            <ScrollPane fx:id="workoutLayout" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
+               <content>
+                  <HBox alignment="TOP_CENTER">
+                     <children>
+                        <Button defaultButton="true" mnemonicParsing="false" onAction="#loadWorkoutAction" text="Cargar entrenamiento" HBox.hgrow="ALWAYS">
+                           <styleClass>
+                              <String fx:value="big-button" />
+                              <String fx:value="primary" />
+                           </styleClass>
+                           <HBox.margin>
+                              <Insets top="25.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+               </content>
+            </ScrollPane>
+         </children>
+      </HBox>
+   </children>
+</VBox>
