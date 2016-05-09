@@ -21,13 +21,20 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.shape.Rectangle;
 import jgpx.model.analysis.Chunk;
 import jgpx.model.analysis.TrackData;
 import jgpx.util.DateTimeUtils;
+import models.CadenceChartManager;
+import models.ChartsManager;
+import models.ElevationChartManager;
+import models.HeartRateChartManager;
 import models.HeartRateZonesChartManager;
+import models.SpeedChartManager;
 
 /**
  * FXML Controller class
@@ -87,7 +94,7 @@ public class WorkoutController implements Initializable {
     @FXML
     private NumberAxis cadenceChartX;
 
-    XYChart.Series<Number, Number> elevationSeries, speedSeries, heartRateSeries, cadenceSeries;
+    //XYChart.Series<Number, Number> elevationSeries, speedSeries, heartRateSeries, cadenceSeries;
     @FXML
     private ToggleGroup abscissa;
     @FXML
@@ -96,38 +103,39 @@ public class WorkoutController implements Initializable {
     private PieChart heartRateZonesChart;
 
     HeartRateZonesChartManager heartRateZonesChartManager;
-
+    
+    ChartsManager chartsManager;
+    @FXML
+    private RadioButton distanceRadioButton;
+    @FXML
+    private RadioButton timeRadioButton;
+    
+    TrackData trackData;
+    
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         elevationChart.setLegendVisible(false);
-        elevationChartX.setLabel("Distancia (km)");
         elevationChartY.setLabel("Altura (m)");
 
         speedChart.setLegendVisible(false);
         speedChartY.setLabel("Velocidad (km/h)");
-        speedChartX.setLabel("Distancia (km)");
 
         heartRateChart.setLegendVisible(false);
         heartRateChartY.setLabel("Freq. cardiaca (latidos/min.)");
-        heartRateChartX.setLabel("Distancia (km)");
 
         cadenceChart.setLegendVisible(false);
         cadenceChartY.setLabel("Cadencia");
-        cadenceChartX.setLabel("Distancia (km)");
-
-        elevationSeries = new XYChart.Series<Number, Number>();
-        speedSeries = new XYChart.Series<Number, Number>();
-        heartRateSeries = new XYChart.Series<Number, Number>();
-        cadenceSeries = new XYChart.Series<Number, Number>();
-
-        elevationChart.getData().add(elevationSeries);
-        speedChart.getData().add(speedSeries);
-        heartRateChart.getData().add(heartRateSeries);
-        cadenceChart.getData().add(cadenceSeries);
-
+        
+        chartsManager = new ChartsManager();
+        
+        chartsManager.addXYChartManager(new ElevationChartManager(elevationChart, 0.05d));
+        chartsManager.addXYChartManager(new SpeedChartManager(speedChart, 0.05d));
+        chartsManager.addXYChartManager(new HeartRateChartManager(heartRateChart, 0.05d));
+        chartsManager.addXYChartManager(new CadenceChartManager(cadenceChart, 0.05d));
+        
         maxHeartRateTextField.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -144,64 +152,28 @@ public class WorkoutController implements Initializable {
         });
 
         heartRateZonesChartManager = new HeartRateZonesChartManager(heartRateZonesChart);
+        
+        abscissa.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+            @Override
+            public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
+                if (newValue == distanceRadioButton) {
+                    chartsManager.setAbscissa(ChartsManager.Abscissa.DISTANCE);
+                }
+                else {
+                    chartsManager.setAbscissa(ChartsManager.Abscissa.TIME);
+                }
+                chartsManager.update(trackData);
+            }
+        });
 
     }
 
     public void init(TrackData trackData) {
-
+        this.trackData = trackData;
+        
         setupLabels(trackData);
 
-        elevationSeries.getData().clear();
-        speedSeries.getData().clear();
-        heartRateSeries.getData().clear();
-        cadenceSeries.getData().clear();
-
-        ObservableList<Chunk> chunks = trackData.getChunks();
-        double distance = 0.d;
-
-        //Para hacer el programa más eficiente, no se mostrarán todos los puntos
-        //sino sólo una parte de ellos.
-        final double factor = 0.05d;
-
-        int l = (int) (1 / factor);
-        int counter = 1;
-
-        //Pero si hay muy pocos chunks, sí se muestran todos los puntos.
-        if (chunks.size() < 200) {
-            l = 1;
-        }
-
-        if (chunks.size() > 0) {
-
-            Chunk f = chunks.get(0);
-            elevationSeries.getData().add(createData(
-                    0, f.getFirstPoint().getElevation()));
-
-            distance += f.getDistance();
-
-            for (Iterator<Chunk> it = chunks.iterator(); it.hasNext();) {
-                Chunk c = it.next();
-
-                if (counter == l) {
-                    elevationSeries.getData().add(createData(distance / 1000.d, c.getLastPoint().getElevation()));
-                    speedSeries.getData().add(createData(
-                            distance / 1000.d, c.getSpeed()
-                    ));
-                    heartRateSeries.getData().add(createData(
-                            distance / 1000.d, c.getAvgHeartRate()
-                    ));
-                    cadenceSeries.getData().add(createData(
-                            distance / 1000.d, c.getAvgCadence()
-                    ));
-                    counter = 0;
-                }
-
-                distance += c.getDistance();
-                counter++;
-
-            }
-        }
-
+        chartsManager.update(trackData);
         heartRateZonesChartManager.update(trackData);
 
     }

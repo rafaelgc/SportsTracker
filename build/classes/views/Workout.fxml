@@ -328,7 +328,7 @@
                         </Label>
                         <HBox prefWidth="200.0" VBox.vgrow="NEVER">
                            <children>
-                              <RadioButton mnemonicParsing="false" selected="true" text="Distancia">
+                              <RadioButton fx:id="distanceRadioButton" mnemonicParsing="false" selected="true" text="Distancia">
                                  <toggleGroup>
                                     <ToggleGroup fx:id="abscissa" />
                                  </toggleGroup>
@@ -336,7 +336,7 @@
                                     <Insets right="15.0" />
                                  </HBox.margin>
                               </RadioButton>
-                              <RadioButton mnemonicParsing="false" text="Tiempo" toggleGroup="$abscissa" />
+                              <RadioButton fx:id="timeRadioButton" mnemonicParsing="false" text="Tiempo" toggleGroup="$abscissa" />
                            </children>
                         </HBox>
                      </children>

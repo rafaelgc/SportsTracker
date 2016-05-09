@@ -25,50 +25,58 @@ public class ChartsManager {
 
     private List<XYChartManager> chartManagers;
     private Abscissa abscissa;
-    
+
     public ChartsManager() {
-        setAbscissa(Abscissa.DISTANCE);
         chartManagers = new ArrayList<>();
+        
+        setAbscissa(Abscissa.DISTANCE);
     }
-    
+
     public void update(TrackData data) {
-        
+        clear();
         ObservableList<Chunk> chunks = data.getChunks();
-        
+
         double abscissaValue = 0.d;
-        
+
         for (Iterator<Chunk> it = chunks.iterator(); it.hasNext();) {
             Chunk c = it.next();
-            
+
             for (Iterator<XYChartManager> man = chartManagers.iterator(); man.hasNext();) {
                 XYChartManager m = man.next();
-                
+
                 m.addData(c, abscissaValue);
-                
+
             }
-            
+
             if (abscissa == Abscissa.DISTANCE) {
-                abscissaValue+=c.getDistance();
+                abscissaValue += c.getDistance();
+            } else {
+                abscissaValue += (c.getDuration().getSeconds()) / 60.d;
             }
-            else {
-                abscissaValue+=c.getDuration().toMinutes();
-            }
-            
+
         }
-        
+
     }
-    
+
     public void setAbscissa(Abscissa abs) {
         this.abscissa = abs;
-        if (abs == Abscissa.DISTANCE) {
-            //Cambiar nombres a los ejes.
+        String newName = "Distancia (km)";
+        if (abs == Abscissa.TIME) {
+            newName = "Tiempo (min)";
         }
-        else {
-            //Cambiar nombres a los ejes.
+
+        for (Iterator<XYChartManager> man = chartManagers.iterator(); man.hasNext();) {
+            man.next().getChart().getXAxis().setLabel(newName);
         }
     }
-    
+
     public void addXYChartManager(XYChartManager manager) {
         chartManagers.add(manager);
+    }
+
+    public void clear() {
+        for (Iterator<XYChartManager> man = chartManagers.iterator(); man.hasNext();) {
+            man.next().clear();
+        }
     }
 }

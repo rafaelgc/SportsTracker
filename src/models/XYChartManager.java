@@ -15,7 +15,7 @@ import jgpx.model.analysis.Chunk;
  */
 public class XYChartManager {
 
-    private final XYChart chart;
+    private final XYChart<Number, Number> chart;
 
     //OPTIMIZACIÓN
     private double optimizationFactor;
@@ -26,6 +26,7 @@ public class XYChartManager {
     public XYChartManager(XYChart chart, double optimizationFactor) {
         this.chart = chart;
         this.series = new XYChart.Series<>();
+        chart.getData().add(series);
         
         this.optimizationFactor = optimizationFactor;
         l = (int)(1 / optimizationFactor);
@@ -42,6 +43,14 @@ public class XYChartManager {
         }
         
         counter++;
+    }
+    
+    public void clear() {
+        series.getData().clear();
+    }
+    
+    public XYChart getChart() {
+        return chart;
     }
     
     protected double getVerticalAxisValue(Chunk c) {
