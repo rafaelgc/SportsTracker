@@ -10,20 +10,24 @@ import java.util.Iterator;
 import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.shape.Rectangle;
 import jgpx.model.analysis.Chunk;
 import jgpx.model.analysis.TrackData;
 import jgpx.util.DateTimeUtils;
+import models.HeartRateZonesChartManager;
 
 /**
  * FXML Controller class
@@ -85,15 +89,13 @@ public class WorkoutController implements Initializable {
 
     XYChart.Series<Number, Number> elevationSeries, speedSeries, heartRateSeries, cadenceSeries;
     @FXML
-    private CheckBox elevationCheckbox;
-    @FXML
-    private CheckBox speedCheckbox;
-    @FXML
-    private CheckBox heartRateCheckbox;
-    @FXML
-    private CheckBox cadenceCheckbox;
-    @FXML
     private ToggleGroup abscissa;
+    @FXML
+    private TextField maxHeartRateTextField;
+    @FXML
+    private PieChart heartRateZonesChart;
+
+    HeartRateZonesChartManager heartRateZonesChartManager;
 
     /**
      * Initializes the controller class.
@@ -111,7 +113,7 @@ public class WorkoutController implements Initializable {
         heartRateChart.setLegendVisible(false);
         heartRateChartY.setLabel("Freq. cardiaca (latidos/min.)");
         heartRateChartX.setLabel("Distancia (km)");
-        
+
         cadenceChart.setLegendVisible(false);
         cadenceChartY.setLabel("Cadencia");
         cadenceChartX.setLabel("Distancia (km)");
@@ -120,81 +122,40 @@ public class WorkoutController implements Initializable {
         speedSeries = new XYChart.Series<Number, Number>();
         heartRateSeries = new XYChart.Series<Number, Number>();
         cadenceSeries = new XYChart.Series<Number, Number>();
-        
+
         elevationChart.getData().add(elevationSeries);
         speedChart.getData().add(speedSeries);
         heartRateChart.getData().add(heartRateSeries);
         cadenceChart.getData().add(cadenceSeries);
-        
-        speedCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+        maxHeartRateTextField.textProperty().addListener(new ChangeListener<String>() {
             @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (newValue.booleanValue()) {
-                    speedChart.setVisible(true);
-                    speedChart.setManaged(true);
-                }
-                else {
-                    speedChart.setVisible(false);
-                    speedChart.setManaged(false);
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (!newValue.matches("[0-9]*")) {
+                    maxHeartRateTextField.setText(oldValue);
+                } else {
+                    try {
+                        int parsed = Integer.parseInt(newValue);
+                        heartRateZonesChartManager.setMaxHeartRate(parsed);
+                    } catch (NumberFormatException e) {
+                    }
                 }
             }
         });
-        
-        elevationCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (newValue.booleanValue()) {
-                    elevationChart.setVisible(true);
-                    elevationChart.setManaged(true);
-                }
-                else {
-                    elevationChart.setVisible(false);
-                    elevationChart.setManaged(false);
-                }
-            }
-        });
-        
-        heartRateCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (newValue.booleanValue()) {
-                    heartRateChart.setVisible(true);
-                    heartRateChart.setManaged(true);
-                }
-                else {
-                    heartRateChart.setVisible(false);
-                    heartRateChart.setManaged(false);
-                }
-            }
-        });
-        
-        cadenceCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (newValue.booleanValue()) {
-                    cadenceChart.setVisible(true);
-                    cadenceChart.setManaged(true);
-                }
-                else {
-                    cadenceChart.setVisible(false);
-                    cadenceChart.setManaged(false);
-                }
-            }
-        });
-        
-        
+
+        heartRateZonesChartManager = new HeartRateZonesChartManager(heartRateZonesChart);
 
     }
 
     public void init(TrackData trackData) {
 
         setupLabels(trackData);
-        
+
         elevationSeries.getData().clear();
         speedSeries.getData().clear();
         heartRateSeries.getData().clear();
         cadenceSeries.getData().clear();
-        
+
         ObservableList<Chunk> chunks = trackData.getChunks();
         double distance = 0.d;
 
@@ -215,8 +176,6 @@ public class WorkoutController implements Initializable {
             Chunk f = chunks.get(0);
             elevationSeries.getData().add(createData(
                     0, f.getFirstPoint().getElevation()));
-
-            speedSeries.getData().add(createData(0, 0));
 
             distance += f.getDistance();
 
@@ -242,6 +201,8 @@ public class WorkoutController implements Initializable {
 
             }
         }
+
+        heartRateZonesChartManager.update(trackData);
 
     }
 

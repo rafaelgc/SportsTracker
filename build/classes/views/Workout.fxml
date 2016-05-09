@@ -245,7 +245,7 @@
                         <Image url="@../images/max-freq.png" />
                      </image>
                   </ImageView>
-                  <Label maxWidth="1.7976931348623157E308" text="FREQ. CARDIACA MÁX." textFill="#00000080" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
+                  <Label maxWidth="1.7976931348623157E308" text="FREC. CARDIACA MÁX." textFill="#00000080" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
                   <Label fx:id="maxHeartRate" maxWidth="1.7976931348623157E308" text="0 km" GridPane.columnIndex="1" GridPane.rowIndex="1">
                      <font>
                         <Font size="18.0" />
@@ -268,7 +268,7 @@
                         <Image url="@../images/average-freq.png" />
                      </image>
                   </ImageView>
-                  <Label maxWidth="1.7976931348623157E308" text="FREQ. CARDIACA MEDIA" textFill="#00000080" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
+                  <Label maxWidth="1.7976931348623157E308" text="FREC. CARDIACA MEDIA" textFill="#00000080" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
                   <Label fx:id="averageHeartRate" maxWidth="1.7976931348623157E308" text="0 km" GridPane.columnIndex="1" GridPane.rowIndex="1">
                      <font>
                         <Font size="18.0" />
@@ -291,7 +291,7 @@
                         <Image url="@../images/min-freq.png" />
                      </image>
                   </ImageView>
-                  <Label maxWidth="1.7976931348623157E308" text="FREQ. CARD MÍN." textFill="#00000080" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
+                  <Label maxWidth="1.7976931348623157E308" text="FREQ. CARDIACA MÍN." textFill="#00000080" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
                   <Label fx:id="minHeartRate" maxWidth="1.7976931348623157E308" text="0 km" GridPane.columnIndex="1" GridPane.rowIndex="1">
                      <font>
                         <Font size="18.0" />
@@ -310,82 +310,131 @@
          </children>
       </GridPane>
       <Separator />
+      <Label text="Análisis">
+         <font>
+            <Font size="22.0" />
+         </font>
+      </Label>
       <HBox VBox.vgrow="NEVER">
          <children>
-            <GridPane HBox.hgrow="NEVER">
-              <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-              </columnConstraints>
-              <rowConstraints>
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-              </rowConstraints>
-               <children>
-                  <CheckBox fx:id="elevationCheckbox" mnemonicParsing="false" selected="true" text="Altura" GridPane.rowIndex="1" />
-                  <CheckBox fx:id="speedCheckbox" mnemonicParsing="false" selected="true" text="Velocidad" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <CheckBox fx:id="heartRateCheckbox" mnemonicParsing="false" selected="true" text="Freq. cardiaca" GridPane.rowIndex="2" />
-                  <CheckBox fx:id="cadenceCheckbox" mnemonicParsing="false" selected="true" text="Cadencia" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <Label text="Gráficas visibles" GridPane.columnSpan="2" />
-               </children>
-            </GridPane>
             <HBox alignment="TOP_RIGHT" HBox.hgrow="ALWAYS">
                <children>
                   <VBox HBox.hgrow="NEVER">
                      <children>
-                        <Label text="Eje abscisas">
+                        <Label text="Eje de abscisas">
                            <VBox.margin>
                               <Insets bottom="5.0" />
                            </VBox.margin>
                         </Label>
-                        <RadioButton mnemonicParsing="false" selected="true" text="Distancia">
-                           <VBox.margin>
-                              <Insets bottom="3.0" />
-                           </VBox.margin>
-                           <toggleGroup>
-                              <ToggleGroup fx:id="abscissa" />
-                           </toggleGroup>
-                        </RadioButton>
-                        <RadioButton mnemonicParsing="false" text="Tiempo" toggleGroup="$abscissa" />
+                        <HBox prefWidth="200.0" VBox.vgrow="NEVER">
+                           <children>
+                              <RadioButton mnemonicParsing="false" selected="true" text="Distancia">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="abscissa" />
+                                 </toggleGroup>
+                                 <HBox.margin>
+                                    <Insets right="15.0" />
+                                 </HBox.margin>
+                              </RadioButton>
+                              <RadioButton mnemonicParsing="false" text="Tiempo" toggleGroup="$abscissa" />
+                           </children>
+                        </HBox>
                      </children>
                   </VBox>
                </children>
             </HBox>
          </children>
       </HBox>
-      <AreaChart fx:id="elevationChart" prefHeight="300.0" title="Altura">
-        <xAxis>
-          <NumberAxis fx:id="elevationChartX" side="BOTTOM" />
-        </xAxis>
-        <yAxis>
-          <NumberAxis fx:id="elevationChartY" side="LEFT" />
-        </yAxis>
-      </AreaChart>
-      <LineChart fx:id="speedChart" prefHeight="300.0" title="Velocidad">
-        <xAxis>
-          <NumberAxis fx:id="speedChartX" side="BOTTOM" />
-        </xAxis>
-        <yAxis>
-          <NumberAxis fx:id="speedChartY" side="LEFT" />
-        </yAxis>
-      </LineChart>
-      <LineChart fx:id="heartRateChart" prefHeight="300.0" title="Frecuencia cardiaca">
-        <xAxis>
-          <NumberAxis fx:id="heartRateChartX" side="BOTTOM" />
-        </xAxis>
-        <yAxis>
-          <NumberAxis fx:id="heartRateChartY" side="LEFT" />
-        </yAxis>
-      </LineChart>
-      <LineChart fx:id="cadenceChart" prefHeight="300.0" title="Cadencia">
-        <xAxis>
-          <NumberAxis fx:id="cadenceChartX" side="BOTTOM" />
-        </xAxis>
-        <yAxis>
-          <NumberAxis fx:id="cadenceChartY" side="LEFT" />
-        </yAxis>
-      </LineChart>
+      <TabPane tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="Altura">
+               <content>
+                  <VBox>
+                     <children>
+                        <AreaChart fx:id="elevationChart" prefHeight="300.0" style="-fx-b: red;">
+                          <xAxis>
+                            <NumberAxis fx:id="elevationChartX" side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis fx:id="elevationChartY" side="LEFT" />
+                          </yAxis>
+                        </AreaChart>
+                     </children>
+                  </VBox>
+               </content>
+          </Tab>
+            <Tab text="Velocidad">
+              <content>
+                  <VBox>
+                     <children>
+                        <LineChart fx:id="speedChart" prefHeight="300.0">
+                          <xAxis>
+                            <NumberAxis fx:id="speedChartX" side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis fx:id="speedChartY" side="LEFT" />
+                          </yAxis>
+                        </LineChart>
+                     </children>
+                  </VBox>
+              </content>
+            </Tab>
+            <Tab text="Frecuencia cardiaca">
+              <content>
+                  <VBox>
+                     <children>
+                        <LineChart fx:id="heartRateChart" prefHeight="300.0">
+                          <xAxis>
+                            <NumberAxis fx:id="heartRateChartX" side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis fx:id="heartRateChartY" side="LEFT" />
+                          </yAxis>
+                        </LineChart>
+                     </children>
+                  </VBox>
+              </content>
+            </Tab>
+            <Tab text="Cadencia">
+              <content>
+                  <VBox>
+                     <children>
+                        <LineChart fx:id="cadenceChart" prefHeight="300.0">
+                          <xAxis>
+                            <NumberAxis fx:id="cadenceChartX" side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis fx:id="cadenceChartY" side="LEFT" />
+                          </yAxis>
+                        </LineChart>
+                     </children>
+                  </VBox>
+              </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+      <Label text="Zonas cardiacas">
+         <font>
+            <Font size="16.0" />
+         </font>
+      </Label>
+      <GridPane hgap="10.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+          <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label text="Frecuencia máxima" />
+            <TextField fx:id="maxHeartRateTextField" promptText="123" GridPane.columnIndex="1" />
+         </children>
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+      </GridPane>
+      <PieChart fx:id="heartRateZonesChart" prefHeight="300.0" />
    </children>
    <padding>
       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
