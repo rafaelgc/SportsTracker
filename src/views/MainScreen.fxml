@@ -33,7 +33,7 @@
                   <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="big-button" text="Resumen trimestral" />
                </children>
             </VBox>
-            <ScrollPane fx:id="workoutLayout" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
+            <ScrollPane fx:id="workoutLayout" fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
                <content>
                   <HBox alignment="TOP_CENTER">
                      <children>

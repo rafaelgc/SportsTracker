@@ -8,13 +8,18 @@ package controllers;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.ResourceBundle;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.shape.Rectangle;
 import jgpx.model.analysis.Chunk;
 import jgpx.model.analysis.TrackData;
@@ -59,17 +64,124 @@ public class WorkoutController implements Initializable {
     private NumberAxis elevationChartY;
     @FXML
     private NumberAxis elevationChartX;
+    @FXML
+    private LineChart<Number, Number> speedChart;
+    @FXML
+    private NumberAxis speedChartY;
+    @FXML
+    private NumberAxis speedChartX;
+    @FXML
+    private LineChart<Number, Number> heartRateChart;
+    @FXML
+    private NumberAxis heartRateChartY;
+    @FXML
+    private NumberAxis heartRateChartX;
+    @FXML
+    private LineChart<Number, Number> cadenceChart;
+    @FXML
+    private NumberAxis cadenceChartY;
+    @FXML
+    private NumberAxis cadenceChartX;
+
+    XYChart.Series<Number, Number> elevationSeries, speedSeries, heartRateSeries, cadenceSeries;
+    @FXML
+    private CheckBox elevationCheckbox;
+    @FXML
+    private CheckBox speedCheckbox;
+    @FXML
+    private CheckBox heartRateCheckbox;
+    @FXML
+    private CheckBox cadenceCheckbox;
+    @FXML
+    private ToggleGroup abscissa;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
-        elevationChart.setTitle("Altura x Distancia");
         elevationChart.setLegendVisible(false);
         elevationChartX.setLabel("Distancia (km)");
         elevationChartY.setLabel("Altura (m)");
+
+        speedChart.setLegendVisible(false);
+        speedChartY.setLabel("Velocidad (km/h)");
+        speedChartX.setLabel("Distancia (km)");
+
+        heartRateChart.setLegendVisible(false);
+        heartRateChartY.setLabel("Freq. cardiaca (latidos/min.)");
+        heartRateChartX.setLabel("Distancia (km)");
+        
+        cadenceChart.setLegendVisible(false);
+        cadenceChartY.setLabel("Cadencia");
+        cadenceChartX.setLabel("Distancia (km)");
+
+        elevationSeries = new XYChart.Series<Number, Number>();
+        speedSeries = new XYChart.Series<Number, Number>();
+        heartRateSeries = new XYChart.Series<Number, Number>();
+        cadenceSeries = new XYChart.Series<Number, Number>();
+        
+        elevationChart.getData().add(elevationSeries);
+        speedChart.getData().add(speedSeries);
+        heartRateChart.getData().add(heartRateSeries);
+        cadenceChart.getData().add(cadenceSeries);
+        
+        speedCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue.booleanValue()) {
+                    speedChart.setVisible(true);
+                    speedChart.setManaged(true);
+                }
+                else {
+                    speedChart.setVisible(false);
+                    speedChart.setManaged(false);
+                }
+            }
+        });
+        
+        elevationCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue.booleanValue()) {
+                    elevationChart.setVisible(true);
+                    elevationChart.setManaged(true);
+                }
+                else {
+                    elevationChart.setVisible(false);
+                    elevationChart.setManaged(false);
+                }
+            }
+        });
+        
+        heartRateCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue.booleanValue()) {
+                    heartRateChart.setVisible(true);
+                    heartRateChart.setManaged(true);
+                }
+                else {
+                    heartRateChart.setVisible(false);
+                    heartRateChart.setManaged(false);
+                }
+            }
+        });
+        
+        cadenceCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue.booleanValue()) {
+                    cadenceChart.setVisible(true);
+                    cadenceChart.setManaged(true);
+                }
+                else {
+                    cadenceChart.setVisible(false);
+                    cadenceChart.setManaged(false);
+                }
+            }
+        });
+        
         
 
     }
@@ -77,10 +189,12 @@ public class WorkoutController implements Initializable {
     public void init(TrackData trackData) {
 
         setupLabels(trackData);
-
-        elevationChart.getData().clear();
-        XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
-
+        
+        elevationSeries.getData().clear();
+        speedSeries.getData().clear();
+        heartRateSeries.getData().clear();
+        cadenceSeries.getData().clear();
+        
         ObservableList<Chunk> chunks = trackData.getChunks();
         double distance = 0.d;
 
@@ -95,19 +209,31 @@ public class WorkoutController implements Initializable {
         if (chunks.size() < 200) {
             l = 1;
         }
-        
+
         if (chunks.size() > 0) {
 
             Chunk f = chunks.get(0);
-            series.getData().add(createData(
-                    distance / 1000.d, f.getFirstPoint().getElevation()));
+            elevationSeries.getData().add(createData(
+                    0, f.getFirstPoint().getElevation()));
+
+            speedSeries.getData().add(createData(0, 0));
+
             distance += f.getDistance();
 
             for (Iterator<Chunk> it = chunks.iterator(); it.hasNext();) {
                 Chunk c = it.next();
 
                 if (counter == l) {
-                    series.getData().add(createData(distance / 1000.d, c.getLastPoint().getElevation()));
+                    elevationSeries.getData().add(createData(distance / 1000.d, c.getLastPoint().getElevation()));
+                    speedSeries.getData().add(createData(
+                            distance / 1000.d, c.getSpeed()
+                    ));
+                    heartRateSeries.getData().add(createData(
+                            distance / 1000.d, c.getAvgHeartRate()
+                    ));
+                    cadenceSeries.getData().add(createData(
+                            distance / 1000.d, c.getAvgCadence()
+                    ));
                     counter = 0;
                 }
 
@@ -115,11 +241,10 @@ public class WorkoutController implements Initializable {
                 counter++;
 
             }
-            elevationChart.getData().add(series);
         }
 
     }
-    
+
     private void setupLabels(TrackData trackData) {
         dateTime.setText(DateTimeUtils.format(trackData.getStartTime()));
         distance.setText(round2(trackData.getTotalDistance() / 1000.d) + " km");
@@ -141,8 +266,7 @@ public class WorkoutController implements Initializable {
         averageHeartRate.setText(trackData.getAverageHeartrate() + "");
         minHeartRate.setText(trackData.getMinHeartRate() + "");
     }
-    
-    
+
     private XYChart.Data<Number, Number> createData(double a, double b) {
         //Crea un XYChart sin el punto.
         XYChart.Data<Number, Number> d = new XYChart.Data<Number, Number>(a, b);
