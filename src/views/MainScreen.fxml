@@ -17,6 +17,12 @@
               <MenuItem mnemonicParsing="false" onAction="#exitAction" text="Salir" />
             </items>
           </Menu>
+            <Menu fx:id="seeMenu" mnemonicParsing="false" text="Ver">
+              <items>
+                <MenuItem fx:id="resumeMenuItem" disable="true" mnemonicParsing="false" onAction="#resume" text="Resumen general" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+              </items>
+            </Menu>
           <Menu mnemonicParsing="false" text="Ayuda">
             <items>
               <MenuItem mnemonicParsing="false" onAction="#aboutAction" text="Sobre" />
@@ -29,8 +35,7 @@
             <VBox fx:id="workoutListLayout" spacing="5.0">
                <children>
                   <ListView fx:id="trainingList" prefHeight="200.0" prefWidth="150.0" VBox.vgrow="ALWAYS" />
-                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="big-button" text="Resumen mensual" />
-                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="big-button" text="Resumen trimestral" />
+                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#resume" styleClass="big-button" text="Resumen general" />
                </children>
             </VBox>
             <ScrollPane fx:id="workoutLayout" fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">

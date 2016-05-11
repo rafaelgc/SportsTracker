@@ -131,10 +131,13 @@ public class WorkoutController implements Initializable {
         
         chartsManager = new ChartsManager();
         
-        chartsManager.addXYChartManager(new ElevationChartManager(elevationChart, 0.05d));
-        chartsManager.addXYChartManager(new SpeedChartManager(speedChart, 0.05d));
-        chartsManager.addXYChartManager(new HeartRateChartManager(heartRateChart, 0.05d));
-        chartsManager.addXYChartManager(new CadenceChartManager(cadenceChart, 0.05d));
+        
+        double opti = 1.d;
+        
+        chartsManager.addXYChartManager(new ElevationChartManager(elevationChart, opti));
+        chartsManager.addXYChartManager(new SpeedChartManager(speedChart, opti));
+        chartsManager.addXYChartManager(new HeartRateChartManager(heartRateChart, opti));
+        chartsManager.addXYChartManager(new CadenceChartManager(cadenceChart, opti));
         
         maxHeartRateTextField.textProperty().addListener(new ChangeListener<String>() {
             @Override

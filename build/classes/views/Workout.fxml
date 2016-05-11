@@ -351,23 +351,23 @@
                <content>
                   <VBox>
                      <children>
-                        <AreaChart fx:id="elevationChart" prefHeight="300.0" style="-fx-b: red;">
-                          <xAxis>
-                            <NumberAxis fx:id="elevationChartX" side="BOTTOM" />
-                          </xAxis>
-                          <yAxis>
-                            <NumberAxis fx:id="elevationChartY" side="LEFT" />
-                          </yAxis>
+                        <AreaChart fx:id="elevationChart" prefHeight="300.0" style="-: red;">
+                           <xAxis>
+                              <NumberAxis fx:id="elevationChartX" side="BOTTOM" />
+                           </xAxis>
+                           <yAxis>
+                              <NumberAxis fx:id="elevationChartY" side="LEFT" />
+                           </yAxis>
                         </AreaChart>
                      </children>
                   </VBox>
                </content>
           </Tab>
-            <Tab text="Velocidad">
+            <Tab id="speedChart" text="Velocidad">
               <content>
                   <VBox>
                      <children>
-                        <LineChart fx:id="speedChart" prefHeight="300.0">
+                        <LineChart fx:id="speedChart" prefHeight="300.0" stylesheets="@../css/CustomButtons.css">
                           <xAxis>
                             <NumberAxis fx:id="speedChartX" side="BOTTOM" />
                           </xAxis>
@@ -379,7 +379,7 @@
                   </VBox>
               </content>
             </Tab>
-            <Tab text="Frecuencia cardiaca">
+            <Tab id="heartRateChart" text="Frecuencia cardiaca">
               <content>
                   <VBox>
                      <children>
@@ -395,7 +395,7 @@
                   </VBox>
               </content>
             </Tab>
-            <Tab text="Cadencia">
+            <Tab id="cadenceChart" text="Cadencia">
               <content>
                   <VBox>
                      <children>

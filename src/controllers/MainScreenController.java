@@ -8,11 +8,15 @@ package controllers;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -24,8 +28,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -49,7 +58,7 @@ import util.SceneTransition;
  * @author Rafa
  */
 public class MainScreenController implements Initializable, EventHandler<WorkerStateEvent>, ListChangeListener<Workout> {
-
+    
     private Stage stage;
     @FXML
     private ListView<Workout> trainingList;
@@ -63,21 +72,30 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
     WorkoutLoader workoutLoader;
     @FXML
     private VBox workoutListLayout;
-
+    @FXML
+    private MenuItem resumeMenuItem;
+    @FXML
+    private Menu seeMenu;
+    
+    private List<RadioMenuItem> radioMenuItems;
+    private ToggleGroup radioMenuItemsGroup;
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         workoutLayout.setFitToHeight(true);
         workoutLayout.setFitToWidth(true);
         trainingList.getSelectionModel().getSelectedItems().addListener(this);
+        radioMenuItems = new ArrayList<>();
+        radioMenuItemsGroup = new ToggleGroup();
     }
-
+    
     public void init(Stage stage) {
-
+        
         this.stage = stage;
-
+        
         updateWorkoutList();
     }
-
+    
     private void loadWorkout(File file) {
         workoutLoader = new WorkoutLoader(file);
         workoutLoader.setOnSucceeded(this);
@@ -86,7 +104,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         thread.start();
         stage.getScene().setCursor(Cursor.WAIT);
     }
-
+    
     @FXML
     private void loadWorkoutAction(ActionEvent event) {
         FileChooser chooser = new FileChooser();
@@ -94,17 +112,17 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivo GPX (*.gpx)", "*.gpx"));
         File file = chooser.showOpenDialog(stage);
         if (file != null && file.canRead()) {
-
+            
             loadWorkout(file);
-
+            
         }
     }
-
+    
     @FXML
     private void exitAction(ActionEvent event) {
         stage.close();
     }
-
+    
     @FXML
     private void aboutAction(ActionEvent event) {
         Alert dialog = new Alert(Alert.AlertType.INFORMATION);
@@ -113,7 +131,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         dialog.setContentText("Rafael González Carrizo. Mayo, 2016");
         dialog.showAndWait();
     }
-
+    
     private void addWorkout(TrackData trackData) {
         if (trainingList.getItems().size() == 0) {
             //Si no había ningún entrenamiento cargado...
@@ -124,20 +142,35 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
                 workoutController = (WorkoutController) loader.<WorkoutController>getController();
                 
                 workoutLayout.setContent(root);
-
+                
             } catch (IOException ex) {
                 Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        resumeMenuItem.setDisable(false);
         
         Workout workout = new Workout(DateTimeUtils.format(trackData.getStartTime()), trackData);
         
         trainingList.getItems().add(workout);
+        
+        RadioMenuItem n = new RadioMenuItem(workout.toString());
+        n.setUserData(workout);
+        n.setSelected(true);
+        n.setToggleGroup(radioMenuItemsGroup);
+        n.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                trainingList.getSelectionModel().select((Workout) n.getUserData());
+            }
+        });
+        radioMenuItems.add(n);
+        
+        seeMenu.getItems().add(n);
         trainingList.getSelectionModel().select(workout);
         
         updateWorkoutList();
     }
-
+    
     private void updateWorkoutList() {
         if (trainingList.getItems().size() > 1) {
             workoutListLayout.setVisible(true);
@@ -147,7 +180,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
             workoutListLayout.setManaged(false);
         }
     }
-
+    
     @Override
     public void handle(WorkerStateEvent event) {
         //El archivo ya se ha cargado.
@@ -155,19 +188,26 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         
         stage.getScene().setCursor(Cursor.DEFAULT);
     }
-
+    
     @Override
     public void onChanged(Change<? extends Workout> c) {
         workoutController.init(trainingList.getSelectionModel().getSelectedItem().getTrackData());
     }
-
+    
+    @FXML
+    private void resume(ActionEvent event) {
+    }
+    
 }
 
 class WorkoutLoader extends Task<TrackData> {
+    
     private File file;
+    
     public WorkoutLoader(File file) {
         this.file = file;
     }
+    
     @Override
     protected TrackData call() throws Exception {
         try {
@@ -175,7 +215,7 @@ class WorkoutLoader extends Task<TrackData> {
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             JAXBElement<Object> root = (JAXBElement<Object>) unmarshaller.unmarshal(file);
             GpxType gpx = (GpxType) root.getValue();
-
+            
             return new TrackData(new Track(gpx.getTrk().get(0)));
             //addWorkout(trackData);
 

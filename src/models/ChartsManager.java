@@ -28,7 +28,7 @@ public class ChartsManager {
 
     public ChartsManager() {
         chartManagers = new ArrayList<>();
-        
+
         setAbscissa(Abscissa.DISTANCE);
     }
 
@@ -38,9 +38,12 @@ public class ChartsManager {
 
         double abscissaValue = 0.d;
 
+        System.out.println("RELLENAR DATOS: " + chunks.size());
+
+        System.out.println("Inicio recorrido");
+        long inicio = System.nanoTime();
         for (Iterator<Chunk> it = chunks.iterator(); it.hasNext();) {
             Chunk c = it.next();
-
             for (Iterator<XYChartManager> man = chartManagers.iterator(); man.hasNext();) {
                 XYChartManager m = man.next();
 
@@ -49,12 +52,16 @@ public class ChartsManager {
             }
 
             if (abscissa == Abscissa.DISTANCE) {
-                abscissaValue += c.getDistance();
+                abscissaValue += c.getDistance() / 1000.d;
             } else {
                 abscissaValue += (c.getDuration().getSeconds()) / 60.d;
             }
 
         }
+        
+
+        long fin = System.nanoTime();
+        System.out.println("TOTAL: " + (fin - inicio) / 1000000000.d);
 
     }
 

@@ -38,3 +38,13 @@ and open the template in the editor.
 .primary:pressed {
     -fx-background-color: #52bdc5;
 }
+
+
+/*CHARTS*/
+.chart-series-line {    
+    -fx-stroke-width: 1px;
+}
+ 
+#speedChart .default-color0.chart-series-line { -fx-stroke: #007fff; }
+#heartRateChart .default-color0.chart-series-line { -fx-stroke: #009933; }
+#cadenceChart .default-color0.chart-series-line { -fx-stroke: #ff9900; }

@@ -5,6 +5,10 @@
  */
 package models;
 
+import java.util.ArrayList;
+import java.util.List;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 import javafx.scene.shape.Rectangle;
 import jgpx.model.analysis.Chunk;
@@ -21,24 +25,49 @@ public class XYChartManager {
     private double optimizationFactor;
     private int l;
     private int counter;
+    double maxVAxis, maxAbscissa;
+    //FIN OPTIMIZACIÓN
+    
     private XYChart.Series<Number, Number> series;
+    private ObservableList<XYChart.Data<Number, Number>> data;
 
     public XYChartManager(XYChart chart, double optimizationFactor) {
         this.chart = chart;
         this.series = new XYChart.Series<>();
         chart.getData().add(series);
         
+        data = FXCollections.observableArrayList();
+        
         this.optimizationFactor = optimizationFactor;
         l = (int)(1 / optimizationFactor);
         counter = 0;
+        maxVAxis = 0.d;
+        maxAbscissa = 0.d;
     }
-
+    
     public void addData(Chunk c, double abscissaValue) {
         
-        if (counter == l) {
+        /*
+        Cuando se optimiza es probable que se pierda información de especial
+        interés como el punto máximo de la gráfica. Así que conviene implementar
+        un mecanismo para no perder ese punto.
+        
+        Lo que hago es almacenar el punto máximo encontrado hasta este momento.
+        Cuando ese punto es superado por otro, ese otro (que podría ser el
+        mayor absoluto) es sistemáticamente añadido.
+        
+        */
+        boolean add = false;
+        if (getVerticalAxisValue(c) > maxVAxis) {
+            maxVAxis = getVerticalAxisValue(c);
+            maxAbscissa = abscissaValue;
+            add = true;
+        }
+        
+        
+        if (counter == l || add) {
             
             series.getData().add(createData(abscissaValue, getVerticalAxisValue(c)));
-            
             counter = 0;
         }
         
@@ -46,10 +75,13 @@ public class XYChartManager {
     }
     
     public void clear() {
+        maxVAxis = 0.d;
+        chart.setAnimated(false);
         series.getData().clear();
+        chart.setAnimated(true);
     }
     
-    public XYChart getChart() {
+    public XYChart<Number, Number> getChart() {
         return chart;
     }
     
