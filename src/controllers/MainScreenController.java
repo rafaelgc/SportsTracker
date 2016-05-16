@@ -57,18 +57,19 @@ import util.SceneTransition;
  *
  * @author Rafa
  */
-public class MainScreenController implements Initializable, EventHandler<WorkerStateEvent>, ListChangeListener<Workout> {
-    
+public class MainScreenController implements Initializable, EventHandler<WorkerStateEvent>, ListChangeListener<Workout>, ChangeListener<Boolean> {
+
     private Stage stage;
     @FXML
-    private ListView<Workout> trainingList;
+    private ListView<Workout> workoutList;
     @FXML
     private HBox hBox;
     @FXML
     private ScrollPane workoutLayout;
-    
+
     WorkoutController workoutController;
-    
+    Parent root;
+
     WorkoutLoader workoutLoader;
     @FXML
     private VBox workoutListLayout;
@@ -76,26 +77,33 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
     private MenuItem resumeMenuItem;
     @FXML
     private Menu seeMenu;
-    
+
     private List<RadioMenuItem> radioMenuItems;
     private ToggleGroup radioMenuItemsGroup;
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         workoutLayout.setFitToHeight(true);
         workoutLayout.setFitToWidth(true);
-        trainingList.getSelectionModel().getSelectedItems().addListener(this);
+        workoutList.getSelectionModel().getSelectedItems().addListener(this);
         radioMenuItems = new ArrayList<>();
         radioMenuItemsGroup = new ToggleGroup();
+
+        radioMenuItemsGroup.selectedToggleProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                System.out.println("EEE");
+            }
+        });
     }
-    
+
     public void init(Stage stage) {
-        
+
         this.stage = stage;
-        
+
         updateWorkoutList();
     }
-    
+
     private void loadWorkout(File file) {
         workoutLoader = new WorkoutLoader(file);
         workoutLoader.setOnSucceeded(this);
@@ -104,7 +112,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         thread.start();
         stage.getScene().setCursor(Cursor.WAIT);
     }
-    
+
     @FXML
     private void loadWorkoutAction(ActionEvent event) {
         FileChooser chooser = new FileChooser();
@@ -112,17 +120,17 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivo GPX (*.gpx)", "*.gpx"));
         File file = chooser.showOpenDialog(stage);
         if (file != null && file.canRead()) {
-            
+
             loadWorkout(file);
-            
+
         }
     }
-    
+
     @FXML
     private void exitAction(ActionEvent event) {
         stage.close();
     }
-    
+
     @FXML
     private void aboutAction(ActionEvent event) {
         Alert dialog = new Alert(Alert.AlertType.INFORMATION);
@@ -131,48 +139,53 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         dialog.setContentText("Rafael González Carrizo. Mayo, 2016");
         dialog.showAndWait();
     }
-    
-    private void addWorkout(TrackData trackData) {
-        if (trainingList.getItems().size() == 0) {
-            //Si no había ningún entrenamiento cargado...
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/Workout.fxml"));
-                Parent root = (Parent) loader.load();
-                
-                workoutController = (WorkoutController) loader.<WorkoutController>getController();
-                
-                workoutLayout.setContent(root);
-                
-            } catch (IOException ex) {
-                Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
-            }
+
+    private void showWorkout(TrackData trackData) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/Workout.fxml"));
+            //Tanto root como workoutController harán falta más adelante,
+            //así que se guardan en variables de clase.
+            root = (Parent) loader.load();
+            workoutController = (WorkoutController) loader.<WorkoutController>getController();
+
+            workoutController.init(trackData);
+            workoutLayout.setContent(root);
+
+        } catch (IOException ex) {
+            Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        resumeMenuItem.setDisable(false);
-        
+    }
+
+    private void addWorkout(TrackData trackData) {
         Workout workout = new Workout(DateTimeUtils.format(trackData.getStartTime()), trackData);
-        
-        trainingList.getItems().add(workout);
-        
+        workoutList.getItems().add(workout);
+
+        resumeMenuItem.setDisable(false);
+
+        //Se añade el entrenamiento al menú.
         RadioMenuItem n = new RadioMenuItem(workout.toString());
         n.setUserData(workout);
         n.setSelected(true);
         n.setToggleGroup(radioMenuItemsGroup);
-        n.selectedProperty().addListener(new ChangeListener<Boolean>() {
+        n.selectedProperty().addListener(this);
+
+        //n.setOnAction(this);
+        /*n.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                trainingList.getSelectionModel().select((Workout) n.getUserData());
+                workoutList.getSelectionModel().select((Workout) n.getUserData());
             }
-        });
+        });*/
         radioMenuItems.add(n);
-        
         seeMenu.getItems().add(n);
-        trainingList.getSelectionModel().select(workout);
-        
+
+        workoutList.getSelectionModel().select(workout);
+
         updateWorkoutList();
     }
-    
+
     private void updateWorkoutList() {
-        if (trainingList.getItems().size() > 1) {
+        if (workoutList.getItems().size() > 1) {
             workoutListLayout.setVisible(true);
             workoutListLayout.setManaged(true);
         } else {
@@ -180,34 +193,70 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
             workoutListLayout.setManaged(false);
         }
     }
-    
+
     @Override
     public void handle(WorkerStateEvent event) {
-        //El archivo ya se ha cargado.
+        //El archivo ya se ha cargado:
+
+        //Se añade el entrenamiento a la lista.
         this.addWorkout(workoutLoader.getValue());
-        
+
+        //Se cambia el cursor al normal.
         stage.getScene().setCursor(Cursor.DEFAULT);
     }
-    
+
     @Override
     public void onChanged(Change<? extends Workout> c) {
-        workoutController.init(trainingList.getSelectionModel().getSelectedItem().getTrackData());
+        showWorkout(workoutList.getSelectionModel().getSelectedItem().getTrackData());
+
+        //Se cambia el elemento del menú seleccionado.
+        for (Iterator<RadioMenuItem> it = radioMenuItems.iterator(); it.hasNext();) {
+            RadioMenuItem mi = it.next();
+            if (mi.getUserData().equals(workoutList.getSelectionModel().getSelectedItem())) {
+                //Se seleccionará. Pero para evitar entrar en un bucle infinido, se
+                //deshabilita el listener.
+                mi.selectedProperty().removeListener(this);
+                mi.setSelected(true);
+                mi.selectedProperty().addListener(this);
+                break;
+            }
+        }
     }
-    
+
+    @Override
+    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+        //¿Cuál es el seleccionado?
+        if (newValue) {
+            RadioMenuItem rmi = null;
+            for (Iterator<RadioMenuItem> it = radioMenuItems.iterator(); it.hasNext();) {
+                RadioMenuItem mi = it.next();
+                if (mi.isSelected()) {
+                    rmi = mi;
+                    break;
+                }
+            }
+
+            if (rmi != null) {
+                rmi.setSelected(true);
+                workoutList.getSelectionModel().select((Workout) rmi.getUserData());
+            }
+        }
+    }
+
     @FXML
     private void resume(ActionEvent event) {
     }
-    
+
 }
 
 class WorkoutLoader extends Task<TrackData> {
-    
+
     private File file;
-    
+
     public WorkoutLoader(File file) {
         this.file = file;
     }
-    
+
     @Override
     protected TrackData call() throws Exception {
         try {
@@ -215,15 +264,14 @@ class WorkoutLoader extends Task<TrackData> {
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             JAXBElement<Object> root = (JAXBElement<Object>) unmarshaller.unmarshal(file);
             GpxType gpx = (GpxType) root.getValue();
-            
+
             return new TrackData(new Track(gpx.getTrk().get(0)));
-            //addWorkout(trackData);
 
         } catch (JAXBException ex) {
             Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return null;
     }
-    
+
 }

@@ -6,7 +6,9 @@
 package controllers;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -35,6 +37,7 @@ import models.ElevationChartManager;
 import models.HeartRateChartManager;
 import models.HeartRateZonesChartManager;
 import models.SpeedChartManager;
+import models.XYChartManager;
 
 /**
  * FXML Controller class
@@ -103,15 +106,15 @@ public class WorkoutController implements Initializable {
     private PieChart heartRateZonesChart;
 
     HeartRateZonesChartManager heartRateZonesChartManager;
-    
+
     ChartsManager chartsManager;
     @FXML
     private RadioButton distanceRadioButton;
     @FXML
     private RadioButton timeRadioButton;
-    
+
     TrackData trackData;
-    
+
     /**
      * Initializes the controller class.
      */
@@ -128,17 +131,17 @@ public class WorkoutController implements Initializable {
 
         cadenceChart.setLegendVisible(false);
         cadenceChartY.setLabel("Cadencia");
-        
+
         chartsManager = new ChartsManager();
-        
-        
-        double opti = 1.d;
-        
+
+        double opti = 0.05d;
+
         chartsManager.addXYChartManager(new ElevationChartManager(elevationChart, opti));
         chartsManager.addXYChartManager(new SpeedChartManager(speedChart, opti));
         chartsManager.addXYChartManager(new HeartRateChartManager(heartRateChart, opti));
         chartsManager.addXYChartManager(new CadenceChartManager(cadenceChart, opti));
-        
+        chartsManager.setAbscissa(ChartsManager.Abscissa.DISTANCE);
+
         maxHeartRateTextField.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -155,14 +158,13 @@ public class WorkoutController implements Initializable {
         });
 
         heartRateZonesChartManager = new HeartRateZonesChartManager(heartRateZonesChart);
-        
+
         abscissa.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
             @Override
             public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
                 if (newValue == distanceRadioButton) {
                     chartsManager.setAbscissa(ChartsManager.Abscissa.DISTANCE);
-                }
-                else {
+                } else {
                     chartsManager.setAbscissa(ChartsManager.Abscissa.TIME);
                 }
                 chartsManager.update(trackData);
@@ -173,11 +175,54 @@ public class WorkoutController implements Initializable {
 
     public void init(TrackData trackData) {
         this.trackData = trackData;
-        
+
         setupLabels(trackData);
 
         chartsManager.update(trackData);
         heartRateZonesChartManager.update(trackData);
+
+        /*double abscissaValue = 0.d;
+
+        System.out.println("RELLENAR DATOS: " + trackData.getChunks().size());
+
+        System.out.println("Inicio recorrido");
+
+        XYChart.Series<Number, Number> elevationSeries = new XYChart.Series<>();
+        XYChart.Series<Number, Number> speedSeries = new XYChart.Series<>();
+        XYChart.Series<Number, Number> heartRateSeries = new XYChart.Series<>();
+        XYChart.Series<Number, Number> cadenceSeries = new XYChart.Series<>();
+
+        long inicio = System.nanoTime();
+        
+        List<XYChart.Data<Number, Number>> eleData = new ArrayList<>();
+        List<XYChart.Data<Number, Number>> speedData = new ArrayList<>();
+        List<XYChart.Data<Number, Number>> heartRateData = new ArrayList<>();
+        List<XYChart.Data<Number, Number>> cadenceData = new ArrayList<>();
+        
+        for (Iterator<Chunk> it = trackData.getChunks().iterator(); it.hasNext();) {
+            Chunk c = it.next();
+
+            eleData.add(new XYChart.Data<>(abscissaValue, c.getLastPoint().getElevation()));
+            speedData.add(new XYChart.Data<>(abscissaValue, c.getSpeed()));
+            heartRateData.add(new XYChart.Data<>(abscissaValue, c.getAvgHeartRate()));
+            cadenceData.add(new XYChart.Data<>(abscissaValue, c.getAvgCadence()));
+
+            abscissaValue += c.getDistance() / 1000.d;
+
+        }
+        
+        elevationSeries.setData(FXCollections.observableArrayList(eleData));
+        speedSeries.setData(FXCollections.observableArrayList(speedData));
+        heartRateSeries.setData(FXCollections.observableArrayList(heartRateData));
+        cadenceSeries.setData(FXCollections.observableArrayList(cadenceData));
+
+        elevationChart.getData().add(elevationSeries);
+        speedChart.getData().add(speedSeries);
+        heartRateChart.getData().add(heartRateSeries);
+        cadenceChart.getData().add(cadenceSeries);
+
+        long fin = System.nanoTime();
+        System.out.println("TOTAL: " + (fin - inicio) / 1000000000.d);*/
 
     }
 

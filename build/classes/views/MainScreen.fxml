@@ -34,7 +34,7 @@
          <children>
             <VBox fx:id="workoutListLayout" spacing="5.0">
                <children>
-                  <ListView fx:id="trainingList" prefHeight="200.0" prefWidth="150.0" VBox.vgrow="ALWAYS" />
+                  <ListView fx:id="workoutList" prefHeight="200.0" prefWidth="150.0" VBox.vgrow="ALWAYS" />
                   <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#resume" styleClass="big-button" text="Resumen general" />
                </children>
             </VBox>

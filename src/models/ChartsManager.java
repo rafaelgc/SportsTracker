@@ -42,6 +42,9 @@ public class ChartsManager {
 
         System.out.println("Inicio recorrido");
         long inicio = System.nanoTime();
+        for (Iterator<XYChartManager> man = chartManagers.iterator(); man.hasNext();) {
+            man.next().start();
+        }
         for (Iterator<Chunk> it = chunks.iterator(); it.hasNext();) {
             Chunk c = it.next();
             for (Iterator<XYChartManager> man = chartManagers.iterator(); man.hasNext();) {
@@ -57,6 +60,10 @@ public class ChartsManager {
                 abscissaValue += (c.getDuration().getSeconds()) / 60.d;
             }
 
+        }
+        
+        for (Iterator<XYChartManager> man = chartManagers.iterator(); man.hasNext();) {
+            man.next().end();
         }
         
 

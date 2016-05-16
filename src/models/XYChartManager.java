@@ -30,6 +30,9 @@ public class XYChartManager {
     
     private XYChart.Series<Number, Number> series;
     private ObservableList<XYChart.Data<Number, Number>> data;
+    
+    //
+    List<XYChart.Data<Number, Number>> tmp;
 
     public XYChartManager(XYChart chart, double optimizationFactor) {
         this.chart = chart;
@@ -66,12 +69,24 @@ public class XYChartManager {
         
         
         if (counter == l || add) {
-            
-            series.getData().add(createData(abscissaValue, getVerticalAxisValue(c)));
+            //series.getData().add(createData(abscissaValue, getVerticalAxisValue(c)));
+            tmp.add(createData(abscissaValue, getVerticalAxisValue(c)));
             counter = 0;
         }
         
         counter++;
+    }
+    
+    void start() {
+        tmp = new ArrayList<>();
+    }
+    
+    void end() {
+        System.out.println("INICIO END");
+        long inicio = System.nanoTime();
+        series.getData().addAll(FXCollections.observableArrayList(tmp));
+        long fin = System.nanoTime();
+        System.out.println("FIN END: " + (fin - inicio) / 1000000000.d + " : " + tmp.size());
     }
     
     public void clear() {

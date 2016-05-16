@@ -16,6 +16,8 @@ public class ElevationChartManager extends XYChartManager {
     
     public ElevationChartManager(XYChart chart, double optimizationFactor) {
         super(chart, optimizationFactor);
+        
+        chart.setAnimated(false);
     }
     
     @Override
