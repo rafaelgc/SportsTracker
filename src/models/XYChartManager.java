@@ -29,7 +29,7 @@ public class XYChartManager {
     //FIN OPTIMIZACIÓN
     
     private XYChart.Series<Number, Number> series;
-    private ObservableList<XYChart.Data<Number, Number>> data;
+    //private ObservableList<XYChart.Data<Number, Number>> data;
     
     //
     List<XYChart.Data<Number, Number>> tmp;
@@ -39,7 +39,7 @@ public class XYChartManager {
         this.series = new XYChart.Series<>();
         chart.getData().add(series);
         
-        data = FXCollections.observableArrayList();
+        //data = FXCollections.observableArrayList();
         
         this.optimizationFactor = optimizationFactor;
         l = (int)(1 / optimizationFactor);
@@ -82,11 +82,11 @@ public class XYChartManager {
     }
     
     void end() {
-        System.out.println("INICIO END");
+        //System.out.println("INICIO END");
         long inicio = System.nanoTime();
         series.getData().addAll(FXCollections.observableArrayList(tmp));
         long fin = System.nanoTime();
-        System.out.println("FIN END: " + (fin - inicio) / 1000000000.d + " : " + tmp.size());
+        //System.out.println("FIN END: " + (fin - inicio) / 1000000000.d + " : " + tmp.size());
     }
     
     public void clear() {

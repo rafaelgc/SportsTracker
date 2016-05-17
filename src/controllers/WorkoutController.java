@@ -170,6 +170,11 @@ public class WorkoutController implements Initializable {
                 chartsManager.update(trackData);
             }
         });
+        
+        elevationChart.setCache(true);
+        speedChart.setCache(true);
+        cadenceChart.setCache(true);
+        heartRateChart.setCache(true);
 
     }
 

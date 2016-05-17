@@ -70,7 +70,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
     WorkoutController workoutController;
     Parent root;
 
-    WorkoutLoader workoutLoader;
+    TrackDataLoader workoutLoader;
     @FXML
     private VBox workoutListLayout;
     @FXML
@@ -80,6 +80,8 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
 
     private List<RadioMenuItem> radioMenuItems;
     private ToggleGroup radioMenuItemsGroup;
+    
+    File lastFolder;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -95,6 +97,8 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
                 System.out.println("EEE");
             }
         });
+        
+        lastFolder = null;
     }
 
     public void init(Stage stage) {
@@ -105,7 +109,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
     }
 
     private void loadWorkout(File file) {
-        workoutLoader = new WorkoutLoader(file);
+        workoutLoader = new TrackDataLoader(file);
         workoutLoader.setOnSucceeded(this);
         Thread thread = new Thread(workoutLoader);
         thread.setDaemon(true);
@@ -117,10 +121,11 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
     private void loadWorkoutAction(ActionEvent event) {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Cargar entrenamiento");
+        chooser.setInitialDirectory(lastFolder);
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivo GPX (*.gpx)", "*.gpx"));
         File file = chooser.showOpenDialog(stage);
         if (file != null && file.canRead()) {
-
+            lastFolder = file.getParentFile();
             loadWorkout(file);
 
         }
@@ -142,6 +147,8 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
 
     private void showWorkout(TrackData trackData) {
         try {
+            long ini = System.nanoTime();
+            System.out.println("INICIOO ");
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/Workout.fxml"));
             //Tanto root como workoutController harán falta más adelante,
             //así que se guardan en variables de clase.
@@ -150,6 +157,8 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
 
             workoutController.init(trackData);
             workoutLayout.setContent(root);
+            
+            System.out.println("FINN: " + (System.nanoTime()-ini) / 1000000000.d);
 
         } catch (IOException ex) {
             Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
@@ -168,14 +177,6 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         n.setSelected(true);
         n.setToggleGroup(radioMenuItemsGroup);
         n.selectedProperty().addListener(this);
-
-        //n.setOnAction(this);
-        /*n.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                workoutList.getSelectionModel().select((Workout) n.getUserData());
-            }
-        });*/
         radioMenuItems.add(n);
         seeMenu.getItems().add(n);
 
@@ -203,6 +204,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
 
         //Se cambia el cursor al normal.
         stage.getScene().setCursor(Cursor.DEFAULT);
+        
     }
 
     @Override
@@ -249,11 +251,20 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
 
 }
 
-class WorkoutLoader extends Task<TrackData> {
+class ChartsTask extends Task<String> {
+
+    @Override
+    protected String call() throws Exception {
+        return null;
+    }
+    
+}
+
+class TrackDataLoader extends Task<TrackData> {
 
     private File file;
 
-    public WorkoutLoader(File file) {
+    public TrackDataLoader(File file) {
         this.file = file;
     }
 

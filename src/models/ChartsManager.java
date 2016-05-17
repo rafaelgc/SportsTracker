@@ -38,10 +38,10 @@ public class ChartsManager {
 
         double abscissaValue = 0.d;
 
-        System.out.println("RELLENAR DATOS: " + chunks.size());
+        /*System.out.println("RELLENAR DATOS: " + chunks.size());
 
         System.out.println("Inicio recorrido");
-        long inicio = System.nanoTime();
+        long inicio = System.nanoTime();*/
         for (Iterator<XYChartManager> man = chartManagers.iterator(); man.hasNext();) {
             man.next().start();
         }
@@ -67,8 +67,8 @@ public class ChartsManager {
         }
         
 
-        long fin = System.nanoTime();
-        System.out.println("TOTAL: " + (fin - inicio) / 1000000000.d);
+        /*long fin = System.nanoTime();
+        System.out.println("TOTAL: " + (fin - inicio) / 1000000000.d);*/
 
     }
 
