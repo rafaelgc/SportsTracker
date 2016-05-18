@@ -78,7 +78,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
 
     private List<RadioMenuItem> radioMenuItems;
     private ToggleGroup radioMenuItemsGroup;
-    
+
     File lastFolder;
     @FXML
     private Menu viewMenu;
@@ -97,7 +97,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
                 System.out.println("EEE");
             }
         });
-        
+
         lastFolder = null;
     }
 
@@ -108,8 +108,8 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         updateWorkoutList();
     }
 
-    private void loadWorkout(File file) {
-        workoutLoader = new TrackDataLoader(file);
+    private void loadWorkout(List<File> files) {
+        workoutLoader = new TrackDataLoader(files);
         workoutLoader.setOnSucceeded(this);
         Thread thread = new Thread(workoutLoader);
         thread.setDaemon(true);
@@ -123,11 +123,13 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         chooser.setTitle("Cargar entrenamiento");
         chooser.setInitialDirectory(lastFolder);
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivo GPX (*.gpx)", "*.gpx"));
-        File file = chooser.showOpenDialog(stage);
-        if (file != null && file.canRead()) {
-            lastFolder = file.getParentFile();
-            loadWorkout(file);
+        //File file = chooser.showOpenDialog(stage);
 
+        List<File> files = chooser.showOpenMultipleDialog(stage);
+
+        if (files.size() > 0) {
+            lastFolder = files.get(0).getParentFile();
+            loadWorkout(files);
         }
     }
 
@@ -157,11 +159,25 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
 
             workoutController.init(trackData);
             workoutLayout.setContent(root);
-            
-            System.out.println("FINN: " + (System.nanoTime()-ini) / 1000000000.d);
+
+            System.out.println("FINN: " + (System.nanoTime() - ini) / 1000000000.d);
 
         } catch (IOException ex) {
             Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
+        //Se cambia el elemento del menú seleccionado.
+        for (Iterator<RadioMenuItem> it = radioMenuItems.iterator(); it.hasNext();) {
+            RadioMenuItem mi = it.next();
+            if (mi.getUserData().equals(workoutList.getSelectionModel().getSelectedItem())) {
+                //Se seleccionará. Pero para evitar entrar en un bucle infinido, se
+                //deshabilita el listener.
+                mi.selectedProperty().removeListener(this);
+                mi.setSelected(true);
+                mi.selectedProperty().addListener(this);
+                break;
+            }
         }
     }
 
@@ -179,8 +195,10 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         n.selectedProperty().addListener(this);
         radioMenuItems.add(n);
         viewMenu.getItems().add(n);
-
+        
+        workoutList.getSelectionModel().getSelectedItems().removeListener(this);
         workoutList.getSelectionModel().select(workout);
+        workoutList.getSelectionModel().getSelectedItems().addListener(this);
 
         updateWorkoutList();
     }
@@ -197,32 +215,27 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
 
     @Override
     public void handle(WorkerStateEvent event) {
-        //El archivo ya se ha cargado:
+        //Los archivos ya se han cargado:
 
-        //Se añade el entrenamiento a la lista.
-        this.addWorkout(workoutLoader.getValue());
+        List<TrackData> tracks = workoutLoader.getValue();
+        if (tracks.size() > 0) {
+            //Se añade el último entrenamiento a la lista.
+            this.addWorkout(tracks.get(0));
+            for (int i = 1; i < tracks.size(); i++) {
+                addWorkout(tracks.get(i));
+            }
+            this.showWorkout(tracks.get(0));
 
+        }
         //Se cambia el cursor al normal.
         stage.getScene().setCursor(Cursor.DEFAULT);
-        
+
     }
 
     @Override
     public void onChanged(Change<? extends Workout> c) {
         showWorkout(workoutList.getSelectionModel().getSelectedItem().getTrackData());
 
-        //Se cambia el elemento del menú seleccionado.
-        for (Iterator<RadioMenuItem> it = radioMenuItems.iterator(); it.hasNext();) {
-            RadioMenuItem mi = it.next();
-            if (mi.getUserData().equals(workoutList.getSelectionModel().getSelectedItem())) {
-                //Se seleccionará. Pero para evitar entrar en un bucle infinido, se
-                //deshabilita el listener.
-                mi.selectedProperty().removeListener(this);
-                mi.setSelected(true);
-                mi.selectedProperty().addListener(this);
-                break;
-            }
-        }
     }
 
     @Override
@@ -257,32 +270,39 @@ class ChartsTask extends Task<String> {
     protected String call() throws Exception {
         return null;
     }
-    
+
 }
 
-class TrackDataLoader extends Task<TrackData> {
+class TrackDataLoader extends Task<List<TrackData>> {
 
-    private File file;
+    private List<File> files;
 
-    public TrackDataLoader(File file) {
-        this.file = file;
+    public TrackDataLoader(List<File> files) {
+        this.files = files;
     }
 
     @Override
-    protected TrackData call() throws Exception {
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(GpxType.class, TrackPointExtensionT.class);
-            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-            JAXBElement<Object> root = (JAXBElement<Object>) unmarshaller.unmarshal(file);
-            GpxType gpx = (GpxType) root.getValue();
+    protected List<TrackData> call() throws Exception {
+        List<TrackData> result = new ArrayList<>();
 
-            return new TrackData(new Track(gpx.getTrk().get(0)));
+        for (Iterator<File> it = files.iterator(); it.hasNext();) {
+            File file = it.next();
+            try {
+                JAXBContext jaxbContext = JAXBContext.newInstance(GpxType.class, TrackPointExtensionT.class);
+                Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+                JAXBElement<Object> root = (JAXBElement<Object>) unmarshaller.unmarshal(file);
+                GpxType gpx = (GpxType) root.getValue();
 
-        } catch (JAXBException ex) {
-            Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
+                result.add(new TrackData(new Track(gpx.getTrk().get(0))));
+                //return new TrackData(new Track(gpx.getTrk().get(0)));
+            } catch (JAXBException ex) {
+                Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
         }
 
-        return null;
+        return result;
+
     }
 
 }
