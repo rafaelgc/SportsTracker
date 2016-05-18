@@ -75,13 +75,13 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
     private VBox workoutListLayout;
     @FXML
     private MenuItem resumeMenuItem;
-    @FXML
-    private Menu seeMenu;
 
     private List<RadioMenuItem> radioMenuItems;
     private ToggleGroup radioMenuItemsGroup;
     
     File lastFolder;
+    @FXML
+    private Menu viewMenu;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -178,7 +178,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         n.setToggleGroup(radioMenuItemsGroup);
         n.selectedProperty().addListener(this);
         radioMenuItems.add(n);
-        seeMenu.getItems().add(n);
+        viewMenu.getItems().add(n);
 
         workoutList.getSelectionModel().select(workout);
 

@@ -411,6 +411,29 @@
                   </VBox>
               </content>
             </Tab>
+            <Tab text="Resumen">
+              <content>
+                  <VBox>
+                     <children>
+                        <LineChart fx:id="summaryChart" prefHeight="300.0">
+                           <xAxis>
+                              <NumberAxis fx:id="summaryChartX" side="BOTTOM" />
+                           </xAxis>
+                           <yAxis>
+                              <NumberAxis fx:id="summaryChartY" side="LEFT" />
+                           </yAxis>
+                        </LineChart>
+                        <HBox prefWidth="200.0" spacing="5.0">
+                           <children>
+                              <ToggleButton fx:id="speedToggle" mnemonicParsing="false" selected="true" styleClass="small-button" text="Velocidad" />
+                              <ToggleButton fx:id="heartRateToggle" mnemonicParsing="false" selected="true" styleClass="small-button" text="Frec. cardiaca" />
+                              <ToggleButton fx:id="cadenceToggle" mnemonicParsing="false" selected="true" styleClass="small-button" text="Cadencia" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+              </content>
+            </Tab>
         </tabs>
       </TabPane>
       <Label text="Zonas cardiacas">

@@ -14,6 +14,10 @@ import jgpx.model.analysis.Chunk;
  */
 public class HeartRateChartManager extends XYChartManager {
     
+    public HeartRateChartManager(XYChart chart, double optimizationFactor, String name) {
+        super(chart, optimizationFactor, name);
+    }
+    
     public HeartRateChartManager(XYChart chart, double optimizationFactor) {
         super(chart, optimizationFactor);
     }

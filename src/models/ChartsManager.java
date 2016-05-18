@@ -42,8 +42,15 @@ public class ChartsManager {
 
         System.out.println("Inicio recorrido");
         long inicio = System.nanoTime();*/
+        
         for (Iterator<XYChartManager> man = chartManagers.iterator(); man.hasNext();) {
-            man.next().start();
+            XYChartManager ch = man.next();
+            ch.start();
+            
+            //Si hay pocos datos, se deshabilita la optimización.
+            if (chunks.size() < 300) {
+                ch.setOptimizationFactor(1.d);
+            }
         }
         for (Iterator<Chunk> it = chunks.iterator(); it.hasNext();) {
             Chunk c = it.next();

@@ -17,7 +17,7 @@
               <MenuItem mnemonicParsing="false" onAction="#exitAction" text="Salir" />
             </items>
           </Menu>
-            <Menu fx:id="seeMenu" mnemonicParsing="false" text="Ver">
+            <Menu fx:id="viewMenu" mnemonicParsing="false" text="Ver">
               <items>
                 <MenuItem fx:id="resumeMenuItem" disable="true" mnemonicParsing="false" onAction="#resume" text="Resumen general" />
                   <SeparatorMenuItem mnemonicParsing="false" />

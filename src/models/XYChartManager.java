@@ -8,7 +8,6 @@ package models;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 import javafx.scene.shape.Rectangle;
 import jgpx.model.analysis.Chunk;
@@ -29,27 +28,31 @@ public class XYChartManager {
     //FIN OPTIMIZACIÓN
     
     private XYChart.Series<Number, Number> series;
-    //private ObservableList<XYChart.Data<Number, Number>> data;
+    boolean visible;
     
-    //
     List<XYChart.Data<Number, Number>> tmp;
-
+    
+    public XYChartManager(XYChart chart, double optimizationFactor, String seriesName) {
+        this(chart, optimizationFactor);
+        series.setName(seriesName);
+    }
+    
     public XYChartManager(XYChart chart, double optimizationFactor) {
         this.chart = chart;
         this.series = new XYChart.Series<>();
         chart.getData().add(series);
-        
-        //data = FXCollections.observableArrayList();
         
         this.optimizationFactor = optimizationFactor;
         l = (int)(1 / optimizationFactor);
         counter = 0;
         maxVAxis = 0.d;
         maxAbscissa = 0.d;
+        
+        visible = true;
     }
     
     public void addData(Chunk c, double abscissaValue) {
-        
+        //Aquí empieza la magia.
         /*
         Cuando se optimiza es probable que se pierda información de especial
         interés como el punto máximo de la gráfica. Así que conviene implementar
@@ -110,5 +113,23 @@ public class XYChartManager {
         XYChart.Data<Number, Number> d = new XYChart.Data<Number, Number>(a, b);
         d.setNode(new Rectangle(0, 0));
         return d;
+    }
+    
+    public void setOptimizationFactor(double factor) {
+        this.optimizationFactor = factor;
+    }
+    
+    public void setVisible(boolean visible) {
+        if (this.visible != visible) {
+            chart.setAnimated(false);
+            if (visible) {
+                chart.getData().add(series);
+            }
+            else {
+                chart.getData().remove(series);
+            }
+            chart.setAnimated(true);
+            this.visible = visible;
+        }
     }
 }

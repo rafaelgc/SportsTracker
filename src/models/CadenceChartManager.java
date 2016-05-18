@@ -14,6 +14,10 @@ import jgpx.model.analysis.Chunk;
  */
 public class CadenceChartManager extends XYChartManager {
     
+    public CadenceChartManager(XYChart chart, double optimizationFactor, String name) {
+        super(chart, optimizationFactor, name);
+    }
+    
     public CadenceChartManager(XYChart chart, double optimizationFactor) {
         super(chart, optimizationFactor);
     }

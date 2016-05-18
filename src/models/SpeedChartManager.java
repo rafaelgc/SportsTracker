@@ -14,6 +14,10 @@ import jgpx.model.analysis.Chunk;
  */
 public class SpeedChartManager extends XYChartManager {
     
+    public SpeedChartManager(XYChart chart, double optimizationFactor, String name) {
+        super(chart, optimizationFactor, name);
+    }
+    
     public SpeedChartManager(XYChart chart, double optimizationFactor) {
         super(chart, optimizationFactor);
     }

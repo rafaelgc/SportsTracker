@@ -39,6 +39,10 @@ and open the template in the editor.
     -fx-background-color: #52bdc5;
 }
 
+.small-button {
+    -fx-font-size: 10px;
+}
+
 
 /*CHARTS*/
 .chart-series-line {    
