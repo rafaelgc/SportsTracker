@@ -5,40 +5,40 @@
  */
 package controllers;
 
+import models.charts.AreaChartTask;
+import models.charts.ChartTask;
+import models.charts.sources.ElevationChartSource;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import jgpx.model.analysis.Chunk;
 import jgpx.model.analysis.TrackData;
 import jgpx.util.DateTimeUtils;
-import models.CadenceChartManager;
-import models.ChartsManager;
-import models.ElevationChartManager;
-import models.HeartRateChartManager;
-import models.HeartRateZonesChartManager;
-import models.SpeedChartManager;
-import models.XYChartManager;
+import models.charts.sources.CadenceChartSource;
+import models.charts.ChartSource;
+import models.charts.sources.HeartRateChartSource;
+import models.charts.HeartRateZonesChartManager;
+import models.charts.LineChartTask;
+import models.charts.sources.SpeedChartSource;
 
 /**
  * FXML Controller class
@@ -73,30 +73,6 @@ public class WorkoutController implements Initializable {
     private Label averageHeartRate;
     @FXML
     private Label minHeartRate;
-    @FXML
-    private AreaChart<Number, Number> elevationChart;
-    @FXML
-    private NumberAxis elevationChartY;
-    @FXML
-    private NumberAxis elevationChartX;
-    @FXML
-    private LineChart<Number, Number> speedChart;
-    @FXML
-    private NumberAxis speedChartY;
-    @FXML
-    private NumberAxis speedChartX;
-    @FXML
-    private LineChart<Number, Number> heartRateChart;
-    @FXML
-    private NumberAxis heartRateChartY;
-    @FXML
-    private NumberAxis heartRateChartX;
-    @FXML
-    private LineChart<Number, Number> cadenceChart;
-    @FXML
-    private NumberAxis cadenceChartY;
-    @FXML
-    private NumberAxis cadenceChartX;
 
     @FXML
     private ToggleGroup abscissa;
@@ -107,7 +83,6 @@ public class WorkoutController implements Initializable {
 
     HeartRateZonesChartManager heartRateZonesChartManager;
 
-    ChartsManager chartsManager;
     @FXML
     private RadioButton distanceRadioButton;
     @FXML
@@ -115,53 +90,29 @@ public class WorkoutController implements Initializable {
 
     TrackData trackData;
     @FXML
-    private LineChart<Number, Number> summaryChart;
-    @FXML
-    private NumberAxis summaryChartY;
-    @FXML
-    private NumberAxis summaryChartX;
-    @FXML
     private ToggleButton speedToggle;
     @FXML
     private ToggleButton heartRateToggle;
     @FXML
     private ToggleButton cadenceToggle;
+    @FXML
+    private VBox elevationChartLayout;
+    @FXML
+    private VBox speedChartLayout;
+    @FXML
+    private VBox heartRateChartLayout;
+    @FXML
+    private VBox cadenceLayout;
+    @FXML
+    private VBox summaryChartLayout;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        elevationChart.setLegendVisible(false);
-        elevationChartY.setLabel("Altura (m)");
 
-        speedChart.setLegendVisible(false);
-        speedChartY.setLabel("Velocidad (km/h)");
-
-        heartRateChart.setLegendVisible(false);
-        heartRateChartY.setLabel("Freq. cardiaca (latidos/min.)");
-
-        cadenceChart.setLegendVisible(false);
-        cadenceChartY.setLabel("Cadencia");
-
-        chartsManager = new ChartsManager();
-
-        double opti = 0.05d;
-
-        chartsManager.addXYChartManager(new ElevationChartManager(elevationChart, opti));
-        chartsManager.addXYChartManager(new SpeedChartManager(speedChart, opti));
-        chartsManager.addXYChartManager(new HeartRateChartManager(heartRateChart, opti));
-        chartsManager.addXYChartManager(new CadenceChartManager(cadenceChart, opti));
-        
-        SpeedChartManager sumSCM = new SpeedChartManager(summaryChart, opti, "Velocidad");
-        HeartRateChartManager sumHCM = new HeartRateChartManager(summaryChart, opti, "Frec. cardiaca");
-        CadenceChartManager sumCCM = new CadenceChartManager(summaryChart, opti, "Cadencia");
-        
-        chartsManager.addXYChartManager(sumSCM);
-        chartsManager.addXYChartManager(sumHCM);
-        chartsManager.addXYChartManager(sumCCM);
-        
-        chartsManager.setAbscissa(ChartsManager.Abscissa.DISTANCE);
+        double opti = 1.d;
 
         maxHeartRateTextField.textProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -184,37 +135,32 @@ public class WorkoutController implements Initializable {
             @Override
             public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
                 if (newValue == distanceRadioButton) {
-                    chartsManager.setAbscissa(ChartsManager.Abscissa.DISTANCE);
+                    setupCharts(ChartTask.Abscissa.DISTANCE);
                 } else {
-                    chartsManager.setAbscissa(ChartsManager.Abscissa.TIME);
+                    setupCharts(ChartTask.Abscissa.TIME);
                 }
-                chartsManager.update(trackData);
             }
         });
-        
-        elevationChart.setCache(true);
-        speedChart.setCache(true);
-        cadenceChart.setCache(true);
-        heartRateChart.setCache(true);
         
         speedToggle.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                sumSCM.setVisible(newValue);
+                createSummaryChart(abscissa.getSelectedToggle()==distanceRadioButton?ChartTask.Abscissa.DISTANCE:ChartTask.Abscissa.TIME);
+
             }
         });
-        
+
         heartRateToggle.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                sumHCM.setVisible(newValue);
+                createSummaryChart(abscissa.getSelectedToggle()==distanceRadioButton?ChartTask.Abscissa.DISTANCE:ChartTask.Abscissa.TIME);
             }
         });
-        
+
         cadenceToggle.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                sumCCM.setVisible(newValue);
+                createSummaryChart(abscissa.getSelectedToggle()==distanceRadioButton?ChartTask.Abscissa.DISTANCE:ChartTask.Abscissa.TIME);
             }
         });
 
@@ -224,9 +170,106 @@ public class WorkoutController implements Initializable {
         this.trackData = trackData;
 
         setupLabels(trackData);
+        setupCharts(ChartTask.Abscissa.DISTANCE);
 
-        chartsManager.update(trackData);
         heartRateZonesChartManager.update(trackData);
+
+    }
+
+    private void setupCharts(ChartTask.Abscissa abscissa) {
+        //ALTURA
+        elevationChartLayout.getChildren().clear();
+        elevationChartLayout.getChildren().add(new Label("Espera..."));
+
+        AreaChartTask elevationTask = new AreaChartTask(trackData, abscissa);
+        elevationTask.setYName("Altura (m)");
+        elevationTask.addChartSource(new ElevationChartSource());
+        elevationTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+            @Override
+            public void handle(WorkerStateEvent event) {
+                try {
+                    elevationChartLayout.getChildren().clear();
+                    elevationChartLayout.getChildren().add(elevationTask.get());
+                } catch (Exception ex) {
+                    Logger.getLogger(WorkoutController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
+        Thread thread = new Thread(elevationTask);
+        thread.setDaemon(true);
+        thread.start();
+
+        //VELOCIDAD
+        speedChartLayout.getChildren().clear();
+        speedChartLayout.getChildren().add(new Label("Espera..."));
+
+        LineChartTask speedTask = new LineChartTask(trackData, abscissa);
+        speedTask.setYName("Velocidad (km/h)");
+        speedTask.addChartSource(new SpeedChartSource());
+        speedTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+            @Override
+            public void handle(WorkerStateEvent event) {
+                try {
+                    speedChartLayout.getChildren().clear();
+                    speedChartLayout.getChildren().add(speedTask.get());
+                } catch (Exception ex) {
+                    Logger.getLogger(WorkoutController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
+        Thread thread2 = new Thread(speedTask);
+        thread2.setDaemon(true);
+        thread2.start();
+
+        //FREC. CARDIACA
+        heartRateChartLayout.getChildren().clear();
+        heartRateChartLayout.getChildren().add(new Label("Espera..."));
+
+        LineChartTask heartRateTask = new LineChartTask(trackData, abscissa);
+        heartRateTask.setYName("Frec. cardiaca (latidos/min)");
+        heartRateTask.addChartSource(new HeartRateChartSource());
+        heartRateTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+            @Override
+            public void handle(WorkerStateEvent event) {
+                try {
+                    heartRateChartLayout.getChildren().clear();
+                    heartRateChartLayout.getChildren().add(heartRateTask.get());
+                } catch (Exception ex) {
+                    Logger.getLogger(WorkoutController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
+        Thread thread3 = new Thread(heartRateTask);
+        thread3.setDaemon(true);
+        thread3.start();
+
+        //CADENCIA
+        cadenceLayout.getChildren().clear();
+        cadenceLayout.getChildren().add(new Label("Espera..."));
+
+        LineChartTask cadenceTask = new LineChartTask(trackData, abscissa);
+        cadenceTask.setYName("Cadencia");
+        cadenceTask.addChartSource(new CadenceChartSource());
+        cadenceTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+            @Override
+            public void handle(WorkerStateEvent event) {
+                try {
+                    cadenceLayout.getChildren().clear();
+                    cadenceLayout.getChildren().add(cadenceTask.get());
+                } catch (Exception ex) {
+                    Logger.getLogger(WorkoutController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
+        Thread thread4 = new Thread(cadenceTask);
+        thread4.setDaemon(true);
+        thread4.start();
+
+        createSummaryChart(abscissa);
 
     }
 
@@ -252,11 +295,38 @@ public class WorkoutController implements Initializable {
         minHeartRate.setText(trackData.getMinHeartRate() + "");
     }
 
-    private XYChart.Data<Number, Number> createData(double a, double b) {
-        //Crea un XYChart sin el punto.
-        XYChart.Data<Number, Number> d = new XYChart.Data<Number, Number>(a, b);
-        d.setNode(new Rectangle(0, 0));
-        return d;
+    private void createSummaryChart(ChartTask.Abscissa abscissa) {
+        //GRAFICA RESUMEN
+        summaryChartLayout.getChildren().clear();
+        summaryChartLayout.getChildren().add(new Label("Espera..."));
+
+        LineChartTask summaryTask = new LineChartTask(trackData, abscissa);
+        summaryTask.setYName("");
+        if (cadenceToggle.isSelected()) {
+            summaryTask.addChartSource(new CadenceChartSource());
+        }
+        if (heartRateToggle.isSelected()) {
+            summaryTask.addChartSource(new HeartRateChartSource());
+        }
+        if (speedToggle.isSelected()) {
+            summaryTask.addChartSource(new SpeedChartSource());
+        }
+        summaryTask.setLegendVisible(true);
+        summaryTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+            @Override
+            public void handle(WorkerStateEvent event) {
+                try {
+                    summaryChartLayout.getChildren().clear();
+                    summaryChartLayout.getChildren().add(summaryTask.get());
+                } catch (Exception ex) {
+                    Logger.getLogger(WorkoutController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
+        Thread thread5 = new Thread(summaryTask);
+        thread5.setDaemon(true);
+        thread5.start();
     }
 
     private static double round2(double num) {

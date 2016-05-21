@@ -349,80 +349,29 @@
         <tabs>
           <Tab text="Altura">
                <content>
-                  <VBox>
-                     <children>
-                        <AreaChart fx:id="elevationChart" prefHeight="300.0" style="-: red;">
-                           <xAxis>
-                              <NumberAxis fx:id="elevationChartX" side="BOTTOM" />
-                           </xAxis>
-                           <yAxis>
-                              <NumberAxis fx:id="elevationChartY" side="LEFT" />
-                           </yAxis>
-                        </AreaChart>
-                     </children>
-                  </VBox>
+                  <VBox fx:id="elevationChartLayout" prefHeight="350.0" />
                </content>
           </Tab>
             <Tab id="speedChart" text="Velocidad">
               <content>
-                  <VBox>
-                     <children>
-                        <LineChart fx:id="speedChart" prefHeight="300.0" stylesheets="@../css/CustomButtons.css">
-                          <xAxis>
-                            <NumberAxis fx:id="speedChartX" side="BOTTOM" />
-                          </xAxis>
-                          <yAxis>
-                            <NumberAxis fx:id="speedChartY" side="LEFT" />
-                          </yAxis>
-                        </LineChart>
-                     </children>
-                  </VBox>
+                  <VBox fx:id="speedChartLayout" />
               </content>
             </Tab>
             <Tab id="heartRateChart" text="Frecuencia cardiaca">
               <content>
-                  <VBox>
-                     <children>
-                        <LineChart fx:id="heartRateChart" prefHeight="300.0">
-                          <xAxis>
-                            <NumberAxis fx:id="heartRateChartX" side="BOTTOM" />
-                          </xAxis>
-                          <yAxis>
-                            <NumberAxis fx:id="heartRateChartY" side="LEFT" />
-                          </yAxis>
-                        </LineChart>
-                     </children>
-                  </VBox>
+                  <VBox fx:id="heartRateChartLayout" />
               </content>
             </Tab>
             <Tab id="cadenceChart" text="Cadencia">
               <content>
-                  <VBox>
-                     <children>
-                        <LineChart fx:id="cadenceChart" prefHeight="300.0">
-                          <xAxis>
-                            <NumberAxis fx:id="cadenceChartX" side="BOTTOM" />
-                          </xAxis>
-                          <yAxis>
-                            <NumberAxis fx:id="cadenceChartY" side="LEFT" />
-                          </yAxis>
-                        </LineChart>
-                     </children>
-                  </VBox>
+                  <VBox fx:id="cadenceLayout" />
               </content>
             </Tab>
             <Tab text="Resumen">
               <content>
                   <VBox>
                      <children>
-                        <LineChart fx:id="summaryChart" prefHeight="300.0">
-                           <xAxis>
-                              <NumberAxis fx:id="summaryChartX" side="BOTTOM" />
-                           </xAxis>
-                           <yAxis>
-                              <NumberAxis fx:id="summaryChartY" side="LEFT" />
-                           </yAxis>
-                        </LineChart>
+                        <VBox fx:id="summaryChartLayout" />
                         <HBox prefWidth="200.0" spacing="5.0">
                            <children>
                               <ToggleButton fx:id="speedToggle" mnemonicParsing="false" selected="true" styleClass="small-button" text="Velocidad" />

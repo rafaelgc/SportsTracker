@@ -276,7 +276,7 @@ class ChartsTask extends Task<String> {
 class TrackDataLoader extends Task<List<TrackData>> {
 
     private List<File> files;
-
+    
     public TrackDataLoader(List<File> files) {
         this.files = files;
     }
