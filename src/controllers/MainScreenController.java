@@ -57,11 +57,9 @@ import util.SceneTransition;
  *
  * @author Rafa
  */
-public class MainScreenController implements Initializable, EventHandler<WorkerStateEvent>, ListChangeListener<Workout>, ChangeListener<Boolean> {
+public class MainScreenController implements Initializable, EventHandler<WorkerStateEvent>, ChangeListener<Boolean> {
 
     private Stage stage;
-    @FXML
-    private ListView<Workout> workoutList;
     @FXML
     private HBox hBox;
     @FXML
@@ -71,8 +69,6 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
     Parent root;
 
     TrackDataLoader workoutLoader;
-    @FXML
-    private VBox workoutListLayout;
     @FXML
     private MenuItem resumeMenuItem;
 
@@ -87,16 +83,14 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
     public void initialize(URL url, ResourceBundle rb) {
         workoutLayout.setFitToHeight(true);
         workoutLayout.setFitToWidth(true);
-        workoutList.getSelectionModel().getSelectedItems().addListener(this);
         radioMenuItems = new ArrayList<>();
         radioMenuItemsGroup = new ToggleGroup();
 
-        radioMenuItemsGroup.selectedToggleProperty().addListener(new ChangeListener() {
+        /*radioMenuItemsGroup.selectedToggleProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                System.out.println("EEE");
             }
-        });
+        });*/
 
         lastFolder = null;
     }
@@ -104,8 +98,6 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
     public void init(Stage stage) {
 
         this.stage = stage;
-
-        updateWorkoutList();
     }
 
     private void loadWorkout(List<File> files) {
@@ -168,22 +160,22 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         
         
         //Se cambia el elemento del menú seleccionado.
+        /*
         for (Iterator<RadioMenuItem> it = radioMenuItems.iterator(); it.hasNext();) {
             RadioMenuItem mi = it.next();
             if (mi.getUserData().equals(workoutList.getSelectionModel().getSelectedItem())) {
-                //Se seleccionará. Pero para evitar entrar en un bucle infinido, se
-                //deshabilita el listener.
+                
                 mi.selectedProperty().removeListener(this);
                 mi.setSelected(true);
                 mi.selectedProperty().addListener(this);
                 break;
             }
         }
+        */
     }
 
     private void addWorkout(TrackData trackData) {
         Workout workout = new Workout(DateTimeUtils.format(trackData.getStartTime()), trackData);
-        workoutList.getItems().add(workout);
 
         resumeMenuItem.setDisable(false);
 
@@ -196,21 +188,6 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         radioMenuItems.add(n);
         viewMenu.getItems().add(n);
         
-        workoutList.getSelectionModel().getSelectedItems().removeListener(this);
-        workoutList.getSelectionModel().select(workout);
-        workoutList.getSelectionModel().getSelectedItems().addListener(this);
-
-        updateWorkoutList();
-    }
-
-    private void updateWorkoutList() {
-        if (workoutList.getItems().size() > 1) {
-            workoutListLayout.setVisible(true);
-            workoutListLayout.setManaged(true);
-        } else {
-            workoutListLayout.setVisible(false);
-            workoutListLayout.setManaged(false);
-        }
     }
 
     @Override
@@ -233,16 +210,10 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
     }
 
     @Override
-    public void onChanged(Change<? extends Workout> c) {
-        showWorkout(workoutList.getSelectionModel().getSelectedItem().getTrackData());
-
-    }
-
-    @Override
     public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-        //¿Cuál es el seleccionado?
         if (newValue) {
             RadioMenuItem rmi = null;
+            //¿Cuál es el seleccionado?
             for (Iterator<RadioMenuItem> it = radioMenuItems.iterator(); it.hasNext();) {
                 RadioMenuItem mi = it.next();
                 if (mi.isSelected()) {
@@ -252,23 +223,14 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
             }
 
             if (rmi != null) {
-                rmi.setSelected(true);
-                workoutList.getSelectionModel().select((Workout) rmi.getUserData());
+                this.showWorkout(((Workout) rmi.getUserData()).getTrackData());
             }
+            
         }
     }
 
     @FXML
     private void resume(ActionEvent event) {
-    }
-
-}
-
-class ChartsTask extends Task<String> {
-
-    @Override
-    protected String call() throws Exception {
-        return null;
     }
 
 }

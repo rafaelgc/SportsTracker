@@ -32,12 +32,6 @@
       </MenuBar>
       <HBox fx:id="hBox" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
          <children>
-            <VBox fx:id="workoutListLayout" spacing="5.0">
-               <children>
-                  <ListView fx:id="workoutList" prefHeight="200.0" prefWidth="150.0" VBox.vgrow="ALWAYS" />
-                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#resume" styleClass="big-button" text="Resumen general" />
-               </children>
-            </VBox>
             <ScrollPane fx:id="workoutLayout" fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
                <content>
                   <HBox alignment="TOP_CENTER">
