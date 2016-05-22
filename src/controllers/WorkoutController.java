@@ -111,9 +111,6 @@ public class WorkoutController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
-        double opti = 1.d;
-
         maxHeartRateTextField.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -329,7 +326,7 @@ public class WorkoutController implements Initializable {
         thread5.start();
     }
 
-    private static double round2(double num) {
+    public static double round2(double num) {
         return (Math.round(num * 100.d) / 100.d);
     }
 

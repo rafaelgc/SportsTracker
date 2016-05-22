@@ -74,6 +74,8 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
 
     private List<RadioMenuItem> radioMenuItems;
     private ToggleGroup radioMenuItemsGroup;
+    
+    List<Workout> workouts;
 
     File lastFolder;
     @FXML
@@ -85,13 +87,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         workoutLayout.setFitToWidth(true);
         radioMenuItems = new ArrayList<>();
         radioMenuItemsGroup = new ToggleGroup();
-
-        /*radioMenuItemsGroup.selectedToggleProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-            }
-        });*/
-
+        workouts = new ArrayList<>();
         lastFolder = null;
     }
 
@@ -115,8 +111,6 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         chooser.setTitle("Cargar entrenamiento");
         chooser.setInitialDirectory(lastFolder);
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivo GPX (*.gpx)", "*.gpx"));
-        //File file = chooser.showOpenDialog(stage);
-
         List<File> files = chooser.showOpenMultipleDialog(stage);
 
         if (files.size() > 0) {
@@ -142,7 +136,6 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
     private void showWorkout(TrackData trackData) {
         try {
             long ini = System.nanoTime();
-            System.out.println("INICIOO ");
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/Workout.fxml"));
             //Tanto root como workoutController harán falta más adelante,
             //así que se guardan en variables de clase.
@@ -152,31 +145,18 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
             workoutController.init(trackData);
             workoutLayout.setContent(root);
 
-            System.out.println("FINN: " + (System.nanoTime() - ini) / 1000000000.d);
 
         } catch (IOException ex) {
             Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        
-        //Se cambia el elemento del menú seleccionado.
-        /*
-        for (Iterator<RadioMenuItem> it = radioMenuItems.iterator(); it.hasNext();) {
-            RadioMenuItem mi = it.next();
-            if (mi.getUserData().equals(workoutList.getSelectionModel().getSelectedItem())) {
-                
-                mi.selectedProperty().removeListener(this);
-                mi.setSelected(true);
-                mi.selectedProperty().addListener(this);
-                break;
-            }
-        }
-        */
     }
 
     private void addWorkout(TrackData trackData) {
         Workout workout = new Workout(DateTimeUtils.format(trackData.getStartTime()), trackData);
-
+        
+        workouts.add(workout);
+        
         resumeMenuItem.setDisable(false);
 
         //Se añade el entrenamiento al menú.
@@ -231,6 +211,20 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
 
     @FXML
     private void resume(ActionEvent event) {
+        try {
+            long ini = System.nanoTime();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/Summary.fxml"));
+            //Tanto root como workoutController harán falta más adelante,
+            //así que se guardan en variables de clase.
+            root = (Parent) loader.load();
+            SummaryController summaryController = (SummaryController) loader.<SummaryController>getController();
+            summaryController.init(workouts);
+            workoutLayout.setContent(root);
+
+
+        } catch (IOException ex) {
+            Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }
