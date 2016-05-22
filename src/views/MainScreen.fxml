@@ -36,7 +36,7 @@
                <content>
                   <HBox alignment="TOP_CENTER">
                      <children>
-                        <Button defaultButton="true" mnemonicParsing="false" onAction="#loadWorkoutAction" text="Cargar entrenamiento" HBox.hgrow="ALWAYS">
+                        <Button fx:id="loadWorkoutButton" defaultButton="true" mnemonicParsing="false" onAction="#loadWorkoutAction" text="Cargar entrenamiento" HBox.hgrow="ALWAYS">
                            <styleClass>
                               <String fx:value="big-button" />
                               <String fx:value="primary" />

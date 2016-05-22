@@ -28,6 +28,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
@@ -80,6 +81,8 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
     File lastFolder;
     @FXML
     private Menu viewMenu;
+    @FXML
+    private Button loadWorkoutButton;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -114,6 +117,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         List<File> files = chooser.showOpenMultipleDialog(stage);
 
         if (files.size() > 0) {
+            loadWorkoutButton.setDisable(true);
             lastFolder = files.get(0).getParentFile();
             loadWorkout(files);
         }
@@ -214,6 +218,13 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         try {
             long ini = System.nanoTime();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/Summary.fxml"));
+            
+            //Se deselecciona el entrenamiento del menú.
+            for (Iterator<RadioMenuItem> it = radioMenuItems.iterator(); it.hasNext();) {
+                RadioMenuItem mi = it.next();
+                mi.setSelected(false);
+            }
+            
             //Tanto root como workoutController harán falta más adelante,
             //así que se guardan en variables de clase.
             root = (Parent) loader.load();
@@ -250,7 +261,6 @@ class TrackDataLoader extends Task<List<TrackData>> {
                 GpxType gpx = (GpxType) root.getValue();
 
                 result.add(new TrackData(new Track(gpx.getTrk().get(0))));
-                //return new TrackData(new Track(gpx.getTrk().get(0)));
             } catch (JAXBException ex) {
                 Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
             }
