@@ -8,7 +8,7 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="SeguimientoDeportivo.jar" size="54795" download="eager" />
+    <jar href="SeguimientoDeportivo.jar" size="53323" download="eager" />
     <jar href="lib\jGPX.jar" size="63961" download="eager" />
   </resources>
   <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="SeguimientoDeportivo" >
