@@ -13,7 +13,7 @@
         <menus>
           <Menu mnemonicParsing="false" text="Archivo">
             <items>
-                  <MenuItem mnemonicParsing="false" onAction="#loadWorkoutAction" text="Cargar entrenamiento" />
+                  <MenuItem mnemonicParsing="false" onAction="#loadWorkoutAction" text="Cargar entrenamiento(s)" />
               <MenuItem mnemonicParsing="false" onAction="#exitAction" text="Salir" />
             </items>
           </Menu>
@@ -36,7 +36,7 @@
                <content>
                   <HBox alignment="TOP_CENTER">
                      <children>
-                        <Button fx:id="loadWorkoutButton" defaultButton="true" mnemonicParsing="false" onAction="#loadWorkoutAction" text="Cargar entrenamiento" HBox.hgrow="ALWAYS">
+                        <Button fx:id="loadWorkoutButton" defaultButton="true" mnemonicParsing="false" onAction="#loadWorkoutAction" text="Cargar entrenamiento(s)" HBox.hgrow="ALWAYS">
                            <styleClass>
                               <String fx:value="big-button" />
                               <String fx:value="primary" />

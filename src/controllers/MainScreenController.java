@@ -108,7 +108,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
     @FXML
     private void loadWorkoutAction(ActionEvent event) {
         FileChooser chooser = new FileChooser();
-        chooser.setTitle("Cargar entrenamiento");
+        chooser.setTitle("Cargar entrenamiento(s)");
         chooser.setInitialDirectory(lastFolder);
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivo GPX (*.gpx)", "*.gpx"));
         List<File> files = chooser.showOpenMultipleDialog(stage);
