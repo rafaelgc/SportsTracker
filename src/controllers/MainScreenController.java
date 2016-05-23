@@ -11,13 +11,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
@@ -29,15 +27,12 @@ import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javax.xml.bind.JAXBContext;
@@ -45,13 +40,11 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import jgpx.model.analysis.TrackData;
-import jgpx.model.gpx.Gpx;
 import jgpx.model.gpx.Track;
 import jgpx.model.jaxb.GpxType;
 import jgpx.model.jaxb.TrackPointExtensionT;
 import jgpx.util.DateTimeUtils;
 import models.Workout;
-import util.SceneTransition;
 
 /**
  * FXML Controller class
@@ -67,6 +60,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
     private ScrollPane workoutLayout;
 
     WorkoutController workoutController;
+    SummaryController summaryController;
     Parent root;
 
     TrackDataLoader workoutLoader;
@@ -75,7 +69,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
 
     private List<RadioMenuItem> radioMenuItems;
     private ToggleGroup radioMenuItemsGroup;
-    
+
     List<Workout> workouts;
 
     File lastFolder;
@@ -83,6 +77,8 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
     private Menu viewMenu;
     @FXML
     private Button loadWorkoutButton;
+
+    boolean summaryVisible;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -92,6 +88,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         radioMenuItemsGroup = new ToggleGroup();
         workouts = new ArrayList<>();
         lastFolder = null;
+        summaryVisible = false;
     }
 
     public void init(Stage stage) {
@@ -116,7 +113,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivo GPX (*.gpx)", "*.gpx"));
         List<File> files = chooser.showOpenMultipleDialog(stage);
 
-        if (files.size() > 0) {
+        if (files != null && files.size() > 0) {
             loadWorkoutButton.setDisable(true);
             lastFolder = files.get(0).getParentFile();
             loadWorkout(files);
@@ -149,18 +146,19 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
             workoutController.init(trackData);
             workoutLayout.setContent(root);
 
+            summaryVisible = false;
 
         } catch (IOException ex) {
             Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
 
     private void addWorkout(TrackData trackData) {
         Workout workout = new Workout(DateTimeUtils.format(trackData.getStartTime()), trackData);
-        
+
         workouts.add(workout);
-        
+
         resumeMenuItem.setDisable(false);
 
         //Se añade el entrenamiento al menú.
@@ -171,7 +169,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
         n.selectedProperty().addListener(this);
         radioMenuItems.add(n);
         viewMenu.getItems().add(n);
-        
+
     }
 
     @Override
@@ -180,12 +178,16 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
 
         List<TrackData> tracks = workoutLoader.getValue();
         if (tracks.size() > 0) {
-            //Se añade el último entrenamiento a la lista.
-            this.addWorkout(tracks.get(0));
-            for (int i = 1; i < tracks.size(); i++) {
+            for (int i = 0; i < tracks.size(); i++) {
                 addWorkout(tracks.get(i));
             }
-            this.showWorkout(tracks.get(0));
+
+            if (!summaryVisible) {
+                this.showWorkout(tracks.get(tracks.size() - 1));
+            } else if (summaryController != null) {
+                summaryController.setupUI();
+                deselectRadioMenuItems();
+            }
 
         }
         //Se cambia el cursor al normal.
@@ -209,32 +211,36 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
             if (rmi != null) {
                 this.showWorkout(((Workout) rmi.getUserData()).getTrackData());
             }
-            
+
         }
     }
 
     @FXML
     private void resume(ActionEvent event) {
         try {
-            long ini = System.nanoTime();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/Summary.fxml"));
-            
+
             //Se deselecciona el entrenamiento del menú.
-            for (Iterator<RadioMenuItem> it = radioMenuItems.iterator(); it.hasNext();) {
-                RadioMenuItem mi = it.next();
-                mi.setSelected(false);
-            }
-            
             //Tanto root como workoutController harán falta más adelante,
             //así que se guardan en variables de clase.
             root = (Parent) loader.load();
-            SummaryController summaryController = (SummaryController) loader.<SummaryController>getController();
+            summaryController = (SummaryController) loader.<SummaryController>getController();
             summaryController.init(workouts);
             workoutLayout.setContent(root);
-
+            
+            deselectRadioMenuItems();
+            
+            summaryVisible = true;
 
         } catch (IOException ex) {
             Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void deselectRadioMenuItems() {
+        for (Iterator<RadioMenuItem> it = radioMenuItems.iterator(); it.hasNext();) {
+            RadioMenuItem mi = it.next();
+            mi.setSelected(false);
         }
     }
 
@@ -243,7 +249,7 @@ public class MainScreenController implements Initializable, EventHandler<WorkerS
 class TrackDataLoader extends Task<List<TrackData>> {
 
     private List<File> files;
-    
+
     public TrackDataLoader(List<File> files) {
         this.files = files;
     }

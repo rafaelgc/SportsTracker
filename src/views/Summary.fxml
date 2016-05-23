@@ -18,6 +18,8 @@
             <DatePicker fx:id="initialDate" />
             <Label text="hasta" />
             <DatePicker fx:id="finalDate" />
+            <Label fx:id="workoutsAmount" text="X" />
+            <Label text="entrenamiento(s)." />
          </children>
       </HBox>
       <GridPane maxWidth="1.7976931348623157E308" prefHeight="100.0">
@@ -105,7 +107,7 @@
       <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="10.0" VBox.vgrow="NEVER">
          <children>
             <Label text="Agrupar por" />
-            <ComboBox fx:id="groupBy" prefWidth="150.0" />
+            <ComboBox fx:id="groupBy" onAction="#groupByAction" prefWidth="150.0" />
          </children>
       </HBox>
       <BarChart fx:id="summaryChart" maxWidth="1.7976931348623157E308" prefHeight="350.0">
