@@ -1,0 +1,3 @@
+Esta aplicación, desarrollada en [JavaFX ](https://es.wikipedia.org/wiki/JavaFX) para la asignatura de [Interfaces Persona Computador](http://www.upv.es/pls/oalu/sic_asi.Busca_Asi?p_codi=11556&p_caca=act&P_IDIOMA=c&p_vista=), permite hacer un seguimiento de la actividad deportiva a partir de ficheros [GPX](https://es.wikipedia.org/wiki/GPX).
+
+![screen1.png](https://bitbucket.org/repo/dkr6a9/images/778106630-screen1.png)![screen2.png](https://bitbucket.org/repo/dkr6a9/images/2407106517-screen2.png)![screen3.png](https://bitbucket.org/repo/dkr6a9/images/2092866610-screen3.png)![screen4.png](https://bitbucket.org/repo/dkr6a9/images/2196724960-screen4.png)
